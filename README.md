@@ -1,89 +1,163 @@
-# 🚀 Painel Cliente MVP
+<div align="center">
+  <img src="src/assets/Freela Logo.PNG" alt="Logo" width="120" />
+  <h1>Painel Freela MVP</h1>
+  
+  <p>
+    <strong>Gestão inteligente para freelancers de alta performance.</strong>
+  </p>
 
-![Status](https://img.shields.io/badge/status-active-success.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat&logo=react&logoColor=%2361DAFB)
-![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=flat&logo=firebase)
-![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=flat&logo=vite&logoColor=white)
+  <p>
+    <a href="#-funcionalidades">Funcionalidades</a> •
+    <a href="#-tecnologias">Tecnologias</a> •
+    <a href="#-instalação">Instalação</a> •
+    <a href="#-licença">Licença</a>
+  </p>
 
-> Um sistema moderno e responsivo para gestão de clientes e jobs freelance, com autenticação segura e controle financeiro integrado.
+  <p>
+    <img src="https://img.shields.io/badge/version-1.0.0-blue.svg?style=flat-square" alt="Version" />
+    <img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="License" />
+    <img src="https://img.shields.io/badge/status-active-success.svg?style=flat-square" alt="Status" />
+  </p>
+</div>
+
+<br />
+
+> **Nota**: Um sistema moderno, construído com React e Firebase, focado em simplicidade e eficiência para o dia a dia de quem trabalha por conta própria.
 
 ---
 
-## 📸 Screenshots
+## 📸 Visão Geral
 
 <div align="center">
-  <img src="https://placehold.co/800x450/1e1e1e/FFF?text=Dashboard+Vis%C3%A3o+Geral" alt="Dashboard" width="800"/>
-  <br/>
-  <em>Visão Geral da Dashboard com Gráficos e Metas</em>
+  <img src="src/assets/dashboard.PNG" alt="Dashboard Principal" width="100%" style="border-radius: 8px; border: 1px solid #333;" />
+  <p><em>Dashboard com métricas financeiras, metas mensais e gráficos interativos.</em></p>
 </div>
 
-<br/>
+<br />
+
+### 📱 Interface Responsiva & Intuitiva
 
 <div align="center">
-  <div style="display: flex; gap: 10px; justify-content: center;">
-    <img src="https://placehold.co/400x300/1e1e1e/FFF?text=Lista+de+Clientes" alt="Clientes" width="45%" />
-    <img src="https://placehold.co/400x300/1e1e1e/FFF?text=Gest%C3%A3o+de+Jobs" alt="Jobs" width="45%" />
+  <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+    <img src="src/assets/Cliente.PNG" alt="Gestão de Clientes" width="48%" style="border-radius: 6px; border: 1px solid #333;" />
+    <img src="src/assets/Jobs.PNG" alt="Gestão de Jobs" width="48%" style="border-radius: 6px; border: 1px solid #333;" />
   </div>
-  <em>Gerenciamento intuitivo de Clientes e Projetos</em>
+  <p><em>Gerencie seus clientes e acompanhe o status de cada job com facilidade.</em></p>
+</div>
+
+<br />
+
+<div align="center">
+  <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+    <img src="src/assets/Config.PNG" alt="Configurações" width="48%" style="border-radius: 6px; border: 1px solid #333;" />
+    <img src="src/assets/admin.PNG" alt="Área Admin" width="48%" style="border-radius: 6px; border: 1px solid #333;" />
+  </div>
+  <p><em>Personalize sua experiência com temas Dark/Light e controle total via Admin.</em></p>
 </div>
 
 ---
 
-## ✨ Funcionalidades Principais
+## ✨ Funcionalidades
 
-- **🔐 Autenticação Segura**: Login e Registro integrados com Firebase Auth.
-- **👥 Gestão de Clientes**: CRUD completo com avatares automáticos (Iniciais).
-- **💼 Controle de Jobs**: Acompanhamento de projetos, prazos e valores.
-- **💰 Dashboard Financeira**:
-  - Resumo de ganhos anuais e mensais.
-  - Gráficos visuais (Recharts).
-  - Definição de metas mensais.
-  - Curva ABC de clientes.
-- **🎨 UI/UX Premium**:
-  - **Dark/Light Mode** automático sincronizado com o banco.
-  - Interface limpa e responsiva (Mobile-First).
-  - Modais de confirmação para ações críticas.
-  - Máscaras de input inteligentes (Telefone, Moeda).
-- **🛡️ Painel Admin**: Controle de permissões de usuários e limpeza de dados (apenas para admin).
+<table>
+  <tr>
+    <td>
+      <h3>🔐 Autenticação Robusta</h3>
+      <p>Login seguro via Firebase Auth com suporte a recuperação de senha e persistência de sessão.</p>
+    </td>
+    <td>
+      <h3>👥 Gestão de Clientes</h3>
+      <p>Cadastro completo, edição e exclusão de clientes, com avatares gerados automaticamente.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <h3>💼 Controle de Projetos</h3>
+      <p>Organize seus jobs por status (Pendente, Em Andamento, Concluído) e acompanhe os prazos.</p>
+    </td>
+    <td>
+      <h3>💰 Dashboard Financeiro</h3>
+      <p>Receita mensal, anual, curva ABC de clientes e definição de metas financeiras.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <h3>🎨 UI/UX Premium</h3>
+      <p>Modo Dark/Light automático, transições suaves, modais responsivos e design system consistente.</p>
+    </td>
+    <td>
+      <h3>🛡️ Administração</h3>
+      <p>Painel exclusivo para admins gerenciarem usuários e limparem dados sensíveis.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠 Tecnologias
 
-- **Frontend**: React.js (Vite)
-- **Estilização**: Styled-Components + Lucide React (Ícones)
-- **Backend/Database**: Firebase (Authentication & Firestore)
-- **Charts**: Recharts
-- **Router**: React Router Dom v7
+Este projeto foi desenvolvido utilizando as melhores práticas e ferramentas do ecossistema moderno de desenvolvimento web.
+
+- **[React](https://reactjs.org/)** — Biblioteca core para a interface.
+- **[Vite](https://vitejs.dev/)** — Build tool ultra-rápida.
+- **[Firebase](https://firebase.google.com/)** — Autenticação e Banco de Dados (Firestore) em tempo real.
+- **[Styled Components](https://styled-components.com/)** — Estilização CSS-in-JS com suporte a temas dinâmicos.
+- **[Recharts](https://recharts.org/)** — Biblioteca de gráficos compostos e flexíveis.
+- **[Lucide React](https://lucide.dev/)** — Ícones leves e consistentes.
 
 ---
 
-## � Como Executar
+## 🚀 Instalação e Uso
 
-Clone o projeto e instale as dependências:
+Pré-requisitos: [Node.js](https://nodejs.org/) instalado.
 
 ```bash
-# Clone o repositório
-git clone https://github.com/seu-usuario/painel-cliente.git
+# 1. Clone o repositório
+git clone https://github.com/DevGabriel0402/painel-freela.git
 
-# Entre na pasta
-cd painel-cliente
+# 2. Entre no diretório
+cd painel-freela
 
-# Instale as dependências
+# 3. Instale as dependências
 npm install
 
-# Inicie o servidor de desenvolvimento
+# 4. Configure o Firebase
+# Crie um arquivo .env na raiz com suas credenciais:
+# VITE_API_KEY=...
+# VITE_AUTH_DOMAIN=...
+# (Verifique firebaseConfig.js para a lista completa)
+
+# 5. Inicie o servidor
 npm run dev
 ```
 
-> **Nota**: É necessário configurar as variáveis de ambiente do Firebase em um arquivo `.env` na raiz do projeto.
+---
+
+## 🤝 Contribuição
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
+
+1.  Faça um Fork do projeto
+2.  Crie uma Branch para sua Feature (`git checkout -b feature/MinhaFeature`)
+3.  Faça o Commit (`git commit -m 'Add some AmazingFeature'`)
+4.  Push para a Branch (`git push origin feature/MinhaFeature`)
+5.  Abra um Pull Request
 
 ---
 
-## � Autor
+## 📄 Licença
 
-Desenvolvido com ❤️ por **Gabriel**.
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/seu-perfil)
+<br />
+
+<div align="center">
+  <p>Desenvolvido com 💜 por <strong>Gabriel</strong></p>
+  
+  <a href="https://wa.me/5531991660594">
+    <img src="https://img.shields.io/badge/-WhatsApp-green?style=for-the-badge&logo=whatsapp&logoColor=white" alt="WhatsApp" />
+  </a>
+   <a href="mailto:gabriellucas2301@gmail.com">
+    <img src="https://img.shields.io/badge/-Email-c14438?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+  </a>
+</div>
