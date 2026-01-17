@@ -84,8 +84,8 @@ export const Input = styled.input`
 
   /* Specific fix for date inputs on mobile */
   &[type="date"] {
-    appearance: auto; /* Restore native appearance so it's visible on iOS */
-    -webkit-appearance: auto;
+    appearance: auto !important; /* Restore native appearance so it's visible on iOS */
+    -webkit-appearance: auto !important;
     min-height: 44px;
     display: block;
    
