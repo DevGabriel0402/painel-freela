@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Regra principal: O usuário só pode acessar documentos
+    // onde o ID do documento pai (users/{userId}) é igual ao seu UID.
+    
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Regras recursivas para subcoleções (clients, jobs)
+      match /clients/{clientId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      match /jobs/{jobId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /settings/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
