@@ -186,56 +186,68 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
       </Main>
 
       <MobileNav $count={count}>
-        {NAV_ITEMS.map((item) => {
-          const locked = isLocked(perms, item.key);
-          const active = location.pathname.startsWith(item.path);
+        {(() => {
+          const items = [...NAV_ITEMS];
+          if (isAdmin) {
+            // Inserir Admin no meio (index 2)
+            items.splice(2, 0, {
+              key: 'admin',
+              label: 'Admin',
+              path: '/admin',
+              icon: Shield,
+              isSpecial: true
+            });
+          }
 
-          return (
-            <MobileItem
-              key={item.key}
-              as={locked ? "button" : NavLink}
-              to={locked ? undefined : item.path}
-              $locked={locked}
-              className={active && !locked ? "active" : ""}
-              onClick={(e) => {
-                if (locked) {
-                  e.preventDefault();
-                  navigate(`/locked?to=${encodeURIComponent(item.path)}`);
-                }
-              }}
-            >
-              <div style={{ position: 'relative' }}>
-                <item.icon size={20} />
-                {locked && (
-                  <div style={{
-                    position: 'absolute',
-                    right: -6, top: -6,
-                    background: 'white',
-                    borderRadius: '50%',
-                    display: 'grid',
-                    placeItems: 'center',
-                    width: 14, height: 14,
-                    border: '1px solid #ccc'
-                  }}>
-                    <Lock size={10} color="black" />
-                  </div>
-                )}
-              </div>
-              <small>{item.label.slice(0, 4)}</small>
-            </MobileItem>
-          )
-        })}
+          return items.map((item) => {
+            // Se for special (Admin), não checa lock normal (pois é controlado por isAdmin)
+            // Se não for special, checa permissions
+            const locked = !item.isSpecial && isLocked(perms, item.key);
+            const active = location.pathname.startsWith(item.path);
 
-        {isAdmin && (
-          <MobileItem as={NavLink} to="/admin" className={location.pathname.startsWith("/admin") ? "active" : ""}>
-            <Shield size={20} />
-            <small>Admin</small>
-          </MobileItem>
-        )}
+            return (
+              <MobileItem
+                key={item.key}
+                as={locked ? "button" : NavLink}
+                to={locked ? undefined : item.path}
+                $locked={locked}
+                $special={item.isSpecial}
+                className={active && !locked ? "active" : ""}
+                onClick={(e) => {
+                  if (locked) {
+                    e.preventDefault();
+                    navigate(`/locked?to=${encodeURIComponent(item.path)}`);
+                  }
+                }}
+              >
+                <div style={{ position: 'relative' }}>
+                  <item.icon size={item.isSpecial ? 24 : 20} className="icon-main" />
+                  {locked && (
+                    <div style={{
+                      position: 'absolute',
+                      right: -6, top: -6,
+                      background: 'white',
+                      borderRadius: '50%',
+                      display: 'grid',
+                      placeItems: 'center',
+                      width: 14, height: 14,
+                      border: '1px solid #ccc'
+                    }}>
+                      <Lock size={10} color="black" />
+                    </div>
+                  )}
+                </div>
+                {!item.isSpecial && <small>{item.label.slice(0, 4)}</small>}
+              </MobileItem>
+            );
+          });
+        })()}
       </MobileNav>
     </Shell>
   );
 }
+
+/* ============ styled ============ */
 
 /* ============ styled ============ */
 
@@ -258,7 +270,8 @@ const Sidebar = styled.aside`
   border-right: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.surface};
   backdrop-filter: blur(14px);
-  overflow: hidden;
+  overflow: visible; /* Necessário para o item ativo "sair" da sidebar */
+  z-index: 10;
 
   @media (max-width: 920px) {
     display: none;
@@ -310,26 +323,36 @@ const NavItem = styled(NavLink)`
   display: flex;
   gap: 10px;
   align-items: center;
+  position: relative;
 
   padding: ${({ $collapsed }) => ($collapsed ? "12px" : "12px 14px")};
   justify-content: ${({ $collapsed }) => ($collapsed ? "center" : "flex-start")};
 
   border-radius: ${({ theme }) => theme.radius.sm};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.surface};
-  color: ${({ theme }) => theme.colors.text};
+  border: 1px solid transparent; 
+  background: transparent;
+  /* Cor base dos ícones/texto: Muted adapta (cinza claro no dark, cinza escuro no light) */
+  color: ${({ theme }) => theme.colors.muted};
   text-decoration: none;
 
   cursor: pointer;
-  transition:
-    transform 0.12s ease,
-    filter 0.12s ease,
-    background 0.12s ease,
-    border-color 0.12s ease;
+  transition: all 0.15s ease;
 
   &.active {
-    border-color: ${({ theme }) => theme.colors.accent};
-    background: ${({ theme }) => theme.colors.accentSoft};
+    background: ${({ theme }) => theme.colors.bg};
+    /* Active no Desktop: Usa a cor de texto padrão (Branco no Dark, Preto no Light) ou Accent? 
+       O usuário pediu "de acordo com o modo", então cor de texto forte é mais seguro que accent se o accent for fixo. 
+       Mas theme.colors.accent adapta? Sim. Vou usar theme.colors.text para garantir contraste máximo. */
+    color: ${({ theme }) => theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    border-right-color: ${({ theme }) => theme.colors.bg}; 
+    
+    margin-right: -15px; 
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    z-index: 5;
+    
+    box-shadow: -4px 4px 12px rgba(0,0,0,0.03);
   }
 
   ${({ $locked }) =>
@@ -337,8 +360,14 @@ const NavItem = styled(NavLink)`
     `
     opacity: 0.6;
     cursor: default; 
-    border-style: dashed;
+    border: 1px dashed ${({ theme }) => theme.colors.border};
     &:hover { transform: none; filter: none; border-color: inherit; }
+    &.active {
+        background: transparent;
+        border: 1px dashed ${({ theme }) => theme.colors.border};
+        margin-right: 0;
+        border-radius: ${({ theme }) => theme.radius.sm};
+    }
   `}
 
   span {
@@ -347,14 +376,14 @@ const NavItem = styled(NavLink)`
 
   &:hover {
     ${({ $locked }) => !$locked && `
-        transform: translateY(-1px);
-        filter: brightness(1.03);
+        background: ${({ theme }) => theme.colors.surface2};
+        color: ${({ theme }) => theme.colors.text};
     `}
   }
-  &:active {
-    ${({ $locked }) => !$locked && `
-        transform: translateY(0px);
-    `}
+  
+  &.active:hover {
+     background: ${({ theme }) => theme.colors.bg};
+     color: ${({ theme }) => theme.colors.text};
   }
 `;
 
@@ -485,24 +514,23 @@ const Content = styled.div`
 
 const MobileNav = styled.nav`
   position: fixed;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
+  bottom: 0px; 
+  left: 0;
+  right: 0;
   z-index: 99;
 
   display: none;
 
-  /* CORREÇÃO AQUI: Grid dinâmico baseado no número de itens */
+  /* Grid: se tiver 5 itens, o 3º fica no meio. */
   grid-template-columns: repeat(${({ $count }) => $count || 1}, 1fr);
 
-  gap: 10px;
-  padding: 10px;
+  gap: 6px;
+  padding: 12px 10px 24px 10px; /* Mais padding embaixo pra safe area do iOS */
 
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.xl};
-  background: ${({ theme }) => theme.colors.surface};
-  backdrop-filter: blur(14px);
-
+  border-top: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'};
+  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(18, 18, 20, 0.85)' : 'rgba(255, 255, 255, 0.85)'};
+  backdrop-filter: blur(16px);
+  
   @media (max-width: 920px) {
     display: grid;
   }
@@ -511,36 +539,83 @@ const MobileNav = styled.nav`
 const MobileItem = styled(NavLink)`
   display: grid;
   justify-items: center;
-  gap: 6px;
-  padding: 10px 8px;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
 
   border-radius: ${({ theme }) => theme.radius.lg};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.surface2};
-  color: ${({ theme }) => theme.colors.text};
+  border: 1px solid transparent;
+  background: transparent;
+  // Dark: Brancos (com transp), Light: Pretos (com transp)
+  color: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
   text-decoration: none;
   cursor: pointer;
+  transition: all 0.2s ease;
 
   small {
-    font-size: 11px;
-    opacity: 0.9;
+    font-size: 10px;
+    font-weight: 500;
   }
 
   &.active {
-    border-color: ${({ theme }) => theme.colors.accent};
-    background: ${({ theme }) => theme.colors.accentSoft};
+    // Dark: Branco total, Light: Preto total
+    color: ${({ theme }) => theme.mode === 'dark' ? '#ffffff' : '#000000'};
+    background: transparent; 
+    font-weight: 700;
+    
+    small {
+      font-weight: 700;
+    }
   }
 
   ${({ $locked }) =>
     $locked &&
     `
-    opacity: 0.6;
-    border-style: dashed;
+    opacity: 0.3;
     cursor: default;
+    filter: grayscale(1);
+  `}
+
+  /* ESTILO ESPECIAL (ADMIN) */
+  ${({ $special, theme }) =>
+    $special &&
+    `
+    background: #FFD600 !important; /* Amarelo forte */
+    color: #000 !important; /* Texto preto sempre */
+    border-radius: 22px;
+    transform: translateY(-20px); 
+    box-shadow: 0 6px 16px rgba(255, 214, 0, 0.45);
+    height: 64px;
+    width: 64px;
+    margin: 0 auto; 
+    border: 3px solid ${theme.colors.bg}; 
+    display: flex;
+    justify-content: center;
+    
+    .icon-main {
+      width: 30px;
+      height: 30px;
+    }
+    
+    &:hover {
+      transform: translateY(-22px) scale(1.05);
+      box-shadow: 0 10px 24px rgba(255, 214, 0, 0.55);
+    }
+    
+    &.active {
+       background: #FFD600 !important;
+       color: #000 !important;
+    }
   `}
 
   &:hover {
-    ${({ $locked }) => !$locked && `filter: brightness(1.05);`}
+    ${({ $locked, $special, theme }) =>
+    !$locked &&
+    !$special &&
+    `
+      // Hover tbm se adapta
+      color: ${theme.mode === 'dark' ? '#ffffff' : '#000000'};
+    `}
   }
 `;
 
