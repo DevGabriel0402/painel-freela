@@ -11,12 +11,25 @@ import {
   Button,
   Pill,
 } from "../components/ui";
-import { Palette, Target, UserRound, RotateCcw, Moon, Sun, Save } from "lucide-react";
+import {
+  Palette,
+  Target,
+  UserRound,
+  RotateCcw,
+  Moon,
+  Sun,
+  Save,
+  ImageUp,
+  Trash2,
+} from "lucide-react";
 import { defaultSettings, mergeSettings, clampHex } from "../app/defaultSettings";
+import { uploadImageToCloudinary } from "../app/cloudinaryUpload";
 
 export default function Settings({ settings, onSave, mode, onToggleMode }) {
   // Trabalha com um rascunho local e só salva quando clicar em "Salvar"
   const [draft, setDraft] = useState(() => mergeSettings(settings));
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoError, setLogoError] = useState("");
 
   useEffect(() => {
     setDraft(mergeSettings(settings));
@@ -27,6 +40,35 @@ export default function Settings({ settings, onSave, mode, onToggleMode }) {
     const b = JSON.stringify(mergeSettings(draft));
     return a !== b;
   }, [settings, draft]);
+
+  async function handleLogoFile(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // validações básicas
+    if (!file.type.startsWith("image/")) {
+      setLogoError("Selecione um arquivo de imagem.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoError("Imagem muito grande (máx 2MB).");
+      return;
+    }
+
+    setLogoError("");
+    setUploadingLogo(true);
+
+    try {
+      const url = await uploadImageToCloudinary(file);
+      set({ logoUrl: url }); // ✅ atualiza só o draft
+    } catch (err) {
+      console.error(err);
+      setLogoError("Falha no upload. Verifique seu preset unsigned e cloud name.");
+    } finally {
+      setUploadingLogo(false);
+      e.target.value = "";
+    }
+  }
 
   function set(patch) {
     setDraft((d) => ({ ...d, ...patch }));
@@ -99,14 +141,55 @@ export default function Settings({ settings, onSave, mode, onToggleMode }) {
           </div>
 
           <div style={{ marginTop: 14 }}>
-            <CardTitle>Logo (URL)</CardTitle>
-            <Input
-              value={draft.logoUrl || ""}
-              onChange={(e) => set({ logoUrl: e.target.value })}
-              placeholder="https://.../logo.png"
-            />
+            <CardTitle>Logo</CardTitle>
+
+            <Row $between style={{ gap: 12, alignItems: "center" }}>
+              <Row $gap="12px" style={{ alignItems: "center" }}>
+                <input
+                  id="logo-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoFile}
+                  style={{ display: "none" }}
+                />
+
+                <Button
+                  type="button"
+                  onClick={() => document.getElementById("logo-upload").click()}
+                  disabled={uploadingLogo}
+                >
+                  <ImageUp size={18} />
+                  {uploadingLogo ? "Enviando..." : "Enviar logo"}
+                </Button>
+
+                {draft.logoUrl ? (
+                  <Button type="button" onClick={() => set({ logoUrl: "" })}>
+                    <Trash2 size={18} /> Remover
+                  </Button>
+                ) : null}
+              </Row>
+
+              {draft.logoUrl ? (
+                <LogoPreview>
+                  <img src={draft.logoUrl} alt="Preview logo" />
+                </LogoPreview>
+              ) : null}
+            </Row>
+
+            <div style={{ marginTop: 10 }}>
+              <CardTitle>Logo (URL)</CardTitle>
+              <Input
+                value={draft.logoUrl || ""}
+                onChange={(e) => set({ logoUrl: e.target.value })}
+                placeholder="https://.../logo.png"
+              />
+            </div>
+
+            {logoError ? <ErrorText>{logoError}</ErrorText> : null}
+
             <Help>
-              Se você definir uma logo, ela substitui o ícone do painel e também vira o favicon do site.
+              Você pode fazer upload (Cloudinary) ou colar uma URL. A logo substitui o
+              ícone do painel e também vira o favicon do site após salvar.
             </Help>
           </div>
         </Card>
@@ -254,4 +337,27 @@ const ColorInput = styled.input`
   border-radius: ${({ theme }) => theme.radius.lg};
   background: ${({ theme }) => theme.colors.surface2};
   cursor: pointer;
+`;
+const LogoPreview = styled.div`
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface2};
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+`;
+
+const ErrorText = styled.div`
+  margin-top: 8px;
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.muted};
 `;

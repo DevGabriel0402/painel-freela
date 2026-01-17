@@ -15,11 +15,7 @@ export default function Dashboard({ jobs, clients, settings }) {
       {/* Relatório do mês (com export) */}
       <MonthlyReport jobs={jobs} clients={clients} />
 
-      {/* Gráficos principais */}
-      <Grid $cols="1fr 1fr" $colsMobile="1fr">
-        <RevenueLineChart jobs={jobs} />
-        <PaidVsPendingDonut jobs={jobs} />
-      </Grid>
+      <RevenueLineChart jobs={jobs} />
 
       {/* Fluxo de caixa */}
       <CashflowForecastChart
@@ -28,8 +24,12 @@ export default function Dashboard({ jobs, clients, settings }) {
         currency={settings?.currency}
       />
 
-      {/* Ranking por cliente */}
-      <ClientsRevenueBarChart jobs={jobs} clients={clients} />
+      {/* Gráficos principais */}
+      <Grid $cols="1fr 1fr" $colsMobile="1fr">
+        {/* Ranking por cliente */}
+        <PaidVsPendingDonut jobs={jobs} />
+        <ClientsRevenueBarChart jobs={jobs} clients={clients} />
+      </Grid>
     </Page>
   );
 }
