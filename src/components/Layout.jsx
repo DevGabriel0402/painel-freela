@@ -110,7 +110,15 @@ export default function Layout({ children, mode, onToggleMode, settings }) {
 
       <Main>
         <TopBar>
-          <TopTitle>{title}</TopTitle>
+          <TopTitle>
+            <DesktopTitle>{title}</DesktopTitle>
+            <MobileTitle>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {logoUrl ? <img src={logoUrl} alt="logo" style={{ maxHeight: 24, borderRadius: 6 }} /> : <LayoutGrid size={20} />}
+                {appName}
+              </div>
+            </MobileTitle>
+          </TopTitle>
 
           <TopActions>
             <TopThemeBtn
@@ -355,6 +363,19 @@ const TopBar = styled.div`
 const TopTitle = styled.div`
   font-weight: 950;
   letter-spacing: 0.2px;
+`;
+
+const DesktopTitle = styled.span`
+  @media (max-width: 920px) {
+    display: none;
+  }
+`;
+
+const MobileTitle = styled.span`
+  display: none;
+  @media (max-width: 920px) {
+    display: inline;
+  }
 `;
 
 const TopActions = styled.div`

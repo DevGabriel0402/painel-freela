@@ -83,7 +83,7 @@ export default function JobList({
           const clientName = clientById.get(j.clientId)?.name || "—";
           return (
             <Card key={j.id}>
-              <Row $between>
+              <Row $between $wrap="true">
                 <Row style={{ minWidth: 0 }}>
                   <JobIcon>
                     <Briefcase size={18} />
