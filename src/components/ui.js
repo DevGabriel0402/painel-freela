@@ -69,8 +69,7 @@ export const Input = styled.input`
   /* Reset for iOS */
   appearance: none;
   -webkit-appearance: none;
-  min-width: 0;
-  max-width: 100%;
+  width: 100%;
   box-sizing: border-box; /* Ensure padding doesn't widen the element */
 
   &::placeholder {
@@ -90,7 +89,7 @@ export const Input = styled.input`
     display: block;
    
     width: 100%;
-    min-width: 250px;
+    min-width: 250px !important;
     box-sizing: border-box;
     color: ${({ theme }) => theme.colors.text};
     
