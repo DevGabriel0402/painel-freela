@@ -9,6 +9,7 @@ export const Grid = styled.div`
   display: grid;
   gap: ${({ $gap }) => $gap || "12px"};
   grid-template-columns: ${({ $cols }) => $cols || "1fr"};
+  max-width: 100%;
 
   @media (max-width: 920px) {
     grid-template-columns: ${({ $colsMobile }) => $colsMobile || "1fr"};
@@ -21,6 +22,8 @@ export const Card = styled.div`
   background: ${({ theme }) => theme.colors.surface};
   box-shadow: ${({ theme }) => theme.shadow.soft};
   padding: 14px;
+  width: 100%;
+  min-width: 250px;
 `;
 
 export const CardTitle = styled.div`
@@ -67,6 +70,8 @@ export const Input = styled.input`
   appearance: none;
   -webkit-appearance: none;
   min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box; /* Ensure padding doesn't widen the element */
 
   &::placeholder {
     color: ${({ theme }) => theme.colors.muted};
@@ -79,8 +84,12 @@ export const Input = styled.input`
 
   /* Specific fix for date inputs on mobile */
   &[type="date"] {
+    appearance: auto; /* Restore native appearance so it's visible on iOS */
+    -webkit-appearance: auto;
     min-height: 44px;
     display: block;
+    color: ${({ theme }) => theme.colors.text};
+    
     /* Ensure text aligns correctly on iOS */
     &::-webkit-date-and-time-value {
       text-align: left;
@@ -98,6 +107,7 @@ export const Select = styled.select`
   outline: none;
   min-width: 0;
   max-width: 100%;
+  box-sizing: border-box;
 
   &:focus {
     border-color: ${({ theme }) => theme.colors.accent};
@@ -117,6 +127,7 @@ export const Textarea = styled.textarea`
   resize: vertical;
   min-width: 0;
   max-width: 100%;
+  box-sizing: border-box;
 
   &::placeholder {
     color: ${({ theme }) => theme.colors.muted};
