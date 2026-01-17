@@ -62,6 +62,11 @@ export const Input = styled.input`
   background: ${({ theme }) => theme.colors.surface2};
   color: ${({ theme }) => theme.colors.text};
   outline: none;
+  
+  /* Reset for iOS */
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 0;
 
   &::placeholder {
     color: ${({ theme }) => theme.colors.muted};
@@ -70,6 +75,16 @@ export const Input = styled.input`
   &:focus {
     border-color: ${({ theme }) => theme.colors.accent};
     box-shadow: 0 0 0 4px ${({ theme }) => theme.colors.accentRing};
+  }
+
+  /* Specific fix for date inputs on mobile */
+  &[type="date"] {
+    min-height: 44px;
+    display: block;
+    /* Ensure text aligns correctly on iOS */
+    &::-webkit-date-and-time-value {
+      text-align: left;
+    }
   }
 `;
 
@@ -81,6 +96,8 @@ export const Select = styled.select`
   background: ${({ theme }) => theme.colors.surface2};
   color: ${({ theme }) => theme.colors.text};
   outline: none;
+  min-width: 0;
+  max-width: 100%;
 
   &:focus {
     border-color: ${({ theme }) => theme.colors.accent};
@@ -98,6 +115,8 @@ export const Textarea = styled.textarea`
   outline: none;
   min-height: 90px;
   resize: vertical;
+  min-width: 0;
+  max-width: 100%;
 
   &::placeholder {
     color: ${({ theme }) => theme.colors.muted};

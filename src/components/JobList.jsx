@@ -102,15 +102,14 @@ export default function JobList({
                 </Row>
 
                 <Actions>
-                  <Select
+                  <StatusSelect
                     value={j.status}
                     onChange={(e) => onUpdateStatus(j.id, e.target.value)}
-                    style={{ width: 160 }}
                   >
                     <option value="andamento">andamento</option>
                     <option value="entregue">entregue</option>
                     <option value="pausado">pausado</option>
-                  </Select>
+                  </StatusSelect>
 
                   <Button
                     type="button"
@@ -270,6 +269,15 @@ const Actions = styled.div`
     width: 100%;
     flex-wrap: wrap;
     justify-content: flex-start;
+  }
+`;
+
+const StatusSelect = styled(Select)`
+  width: 160px;
+  
+  @media (max-width: 920px) {
+    width: 100%;
+    margin-bottom: 4px;
   }
 `;
 
