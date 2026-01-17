@@ -30,5 +30,13 @@ service cloud.firestore {
     match /users {
       allow read: if request.auth != null && isAdmin();
     }
+
+    // Feedbacks públicos (Wall of Love)
+    match /feedbacks/{feedbackId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      // Apenas o dono ou admin pode editar/deletar
+      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.uid || isAdmin());
+    }
   }
 }

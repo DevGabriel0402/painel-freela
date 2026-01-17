@@ -10,6 +10,7 @@ import {
     orderBy,
     getDoc,
     getDocs,
+    limit,
 } from "firebase/firestore";
 
 /**
@@ -273,4 +274,32 @@ export async function seedDataForUser(uid) {
     });
 
     await Promise.all(jobPromises);
+}
+
+// --- FEEDBACKS ---
+
+export function subscribeFeedbacks(onData) {
+    const ref = collection(db, "feedbacks");
+    // Limite de 50 para não pesar
+    const q = query(ref, orderBy("createdAt", "desc"), limit(50));
+    return onSnapshot(q, (snap) => {
+        const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        onData(items);
+    });
+}
+
+export async function addFeedback(uid, data) {
+    if (!uid) return;
+    const ref = doc(collection(db, "feedbacks"));
+    await setDoc(ref, {
+        ...data,
+        uid, // Quem criou
+        id: ref.id,
+        createdAt: Date.now(),
+    });
+}
+
+export async function deleteFeedback(feedbackId) {
+    if (!feedbackId) return;
+    await deleteDoc(doc(db, "feedbacks", feedbackId));
 }

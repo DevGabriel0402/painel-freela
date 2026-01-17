@@ -11,6 +11,7 @@ import Locked from "./pages/Locked"; // Import Locked Page
 
 import Jobs from "./pages/Jobs";
 import Settings from "./pages/Settings";
+import Feedback from "./pages/Feedback";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useLocalStorage } from "./app/useLocalStorage";
 import { defaultSettings, mergeSettings, clampHex } from "./app/defaultSettings";
@@ -276,6 +277,8 @@ export default function App() {
                         </RouteGuard>
                       }
                     />
+
+                    <Route path="/feedback" element={<Feedback profile={data.profile} />} />
 
                     <Route
                       path="/settings"
