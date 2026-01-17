@@ -9,6 +9,8 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import Locked from "./pages/Locked"; // Import Locked Page
 
+import { Analytics } from "@vercel/analytics/react"
+
 import Jobs from "./pages/Jobs";
 import Settings from "./pages/Settings";
 import Feedback from "./pages/Feedback";
@@ -311,6 +313,7 @@ export default function App() {
           />
         </Routes>
       </PrivacyContext.Provider>
+      <Analytics />
     </ThemeProvider>
   );
 }
