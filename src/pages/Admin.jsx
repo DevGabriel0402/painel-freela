@@ -7,6 +7,7 @@ import {
   setUserPermissionsAdmin,
   setUserDisabledAdmin,
   clearUserDataAdmin,
+  deleteUserFS
 } from "../app/firestore";
 import { ADMIN_EMAIL } from "../app/admin";
 
@@ -78,6 +79,20 @@ export default function Admin() {
     setBusy((b) => ({ ...b, [uid]: true }));
     try {
       await clearUserDataAdmin(uid);
+    } finally {
+      setBusy((b) => ({ ...b, [uid]: false }));
+    }
+  }
+
+  async function deleteUser(uid) {
+    const ok = window.confirm(
+      "PERIGO: Tem certeza que deseja EXCLUIR este usuário? \n\nIsso apagará todos os dados e o removerá desta lista. (A conta de Autenticação precisa ser removida no painel Firebase Console, se necessário)."
+    );
+    if (!ok) return;
+
+    setBusy((b) => ({ ...b, [uid]: true }));
+    try {
+      await deleteUserFS(uid);
     } finally {
       setBusy((b) => ({ ...b, [uid]: false }));
     }
@@ -157,7 +172,17 @@ export default function Admin() {
                     disabled={isBusy || isOwnerAdmin}
                     title={isOwnerAdmin ? "Não limpe os dados do admin" : undefined}
                   >
-                    <Trash2 size={18} /> Limpar dados
+                    <Trash2 size={18} /> Limpar Depto.
+                  </Button>
+
+                  <Button
+                    type="button"
+                    onClick={() => deleteUser(u.uid)}
+                    disabled={isBusy || isOwnerAdmin}
+                    style={{ borderColor: '#ef4444', color: '#ef4444' }}
+                    title="Excluir usuário do banco de dados"
+                  >
+                    <Trash2 size={18} /> Excluir
                   </Button>
                 </Row>
               </Row>

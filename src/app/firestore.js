@@ -94,7 +94,7 @@ export async function createUserProfile(uid, data) {
                 dashboard: true,
                 jobs: true,
                 clientes: true,
-                settings: true,
+                settings: false, // <--- Bloqueado por padrão
             },
             disabled: false,
         });
@@ -155,6 +155,16 @@ export async function clearUserDataAdmin(targetUid) {
     deletes.push(deleteDoc(settingsRef));
 
     await Promise.allSettled(deletes);
+}
+
+// Deleta completamente o usuário do Firestore (dados + documento de perfil)
+export async function deleteUserFS(targetUid) {
+    if (!targetUid) return;
+    // Limpa subdados
+    await clearUserDataAdmin(targetUid);
+    // Remove doc principal
+    const userRef = doc(db, "users", targetUid);
+    await deleteDoc(userRef);
 }
 
 // --- CLIENTS ---
