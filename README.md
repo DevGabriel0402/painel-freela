@@ -1,6 +1,6 @@
 <div align="center">
   <img src="src/assets/Freela Logo.PNG" alt="Logo" width="120" />
-  <h1>Painel Freela MVP</h1>
+  <h1>Flowyhub - Painel MVP</h1>
   
   <p>
     <strong>Gestão inteligente para freelancers de alta performance.</strong>

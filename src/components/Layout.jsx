@@ -22,6 +22,7 @@ import { usePrivacy } from "../app/privacy";
 import { logout } from "../app/auth";
 import { NAV_ITEMS } from "../app/navItems";
 import { isLocked } from "../app/permissions";
+import { defaultSettings } from "../app/defaultSettings";
 
 export default function Layout({ children, mode, onToggleMode, settings, permissions }) {
   const [collapsed, setCollapsed] = useLocalStorage("sidebar_collapsed_v1", false);
@@ -220,6 +221,24 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
         </TopBar>
 
         <Content>{children}</Content>
+
+        <SiteFooter>
+          2026 &copy; Todos os direitos reservados - Desenvolvido por{" "}
+          <a
+            href="https://wa.me/5531991660594"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color:
+                mode === "dark" &&
+                  (!settings?.accent || settings?.accent === defaultSettings.accent)
+                  ? "#ffffff"
+                  : undefined,
+            }}
+          >
+            Gabriel
+          </a>
+        </SiteFooter>
       </Main>
 
       <MobileNav $count={count}>
@@ -492,6 +511,9 @@ const Main = styled.main`
   padding: 16px;
   background: ${({ theme }) => theme.colors.bg};
   min-height: 100vh;
+  
+  display: flex;
+  flex-direction: column;
 
   @media (max-width: 920px) {
     padding-bottom: 90px;
@@ -680,4 +702,24 @@ const LogoImg = styled.img`
   object-fit: contain;
   border-radius: 12px;
   display: block;
+`;
+
+const SiteFooter = styled.footer`
+  text-align: center;
+  padding: 40px 16px 20px 16px;
+  margin-top: auto;
+  font-size: 13px;
+  color: ${({ theme }) => theme.colors.muted};
+
+  a {
+    color: ${({ theme }) => theme.colors.text};
+    text-decoration: none;
+    font-weight: 700;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  }
 `;
