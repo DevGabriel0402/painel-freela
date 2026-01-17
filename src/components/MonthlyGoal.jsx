@@ -20,7 +20,11 @@ export default function MonthlyGoal({ jobs, settings }) {
 
   const receivedThisMonth = useMemo(() => {
     return jobs
-      .filter((j) => j.paid && monthKey(j.dueDate) === currentMonth)
+      .filter((j) => {
+        const date = j.date || j.dueDate || j.deadline;
+        const isPaid = j.paid || j.status === "Concluído" || j.status === "Pago";
+        return isPaid && monthKey(date) === currentMonth;
+      })
       .reduce((acc, j) => acc + Number(j.value || 0), 0);
   }, [jobs, currentMonth]);
 

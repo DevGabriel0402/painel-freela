@@ -216,3 +216,61 @@ export async function removeJobFS(uid, jobId) {
     const ref = doc(db, "users", uid, "jobs", jobId);
     await deleteDoc(ref);
 }
+
+// --- SEED ---
+
+export async function seedDataForUser(uid) {
+    if (!uid) return;
+    const userRef = doc(db, "users", uid);
+    const clientsRef = collection(userRef, "clients");
+    const jobsRef = collection(userRef, "jobs");
+
+    // 1. Create Clients
+    const dummyClients = [
+        { name: "Ana Clara Silva", contact: "11999998888", notes: "Cliente VIP" },
+        { name: "Bruno Souza", contact: "bruno@email.com", notes: "Prefere contato via email" },
+        { name: "Carla Dias", contact: "21988887777", notes: "" },
+        { name: "Daniel Oliveira", contact: "31977776666", notes: "Agência parceira" },
+        { name: "Eduardo Santos", contact: "edu@empresa.com", notes: "" },
+    ];
+
+    const clientIds = [];
+    const clientPromises = dummyClients.map(async (c) => {
+        const ref = doc(clientsRef);
+        clientIds.push({ id: ref.id, name: c.name });
+        return setDoc(ref, {
+            ...c,
+            id: ref.id,
+            createdAt: Date.now(),
+        });
+    });
+
+    await Promise.all(clientPromises);
+
+    // 2. Create Jobs
+    const dummyJobs = [
+        { title: "Website Institucional", value: 5000, status: "Em andamento", deadline: "2025-12-31" },
+        { title: "Logo Design", value: 1500, status: "Concluído", deadline: "2025-10-15" },
+        { title: "Gestão Redes Sociais", value: 2000, status: "Em andamento", deadline: "2025-11-30" },
+        { title: "App Delivery", value: 15000, status: "Cancelado", deadline: "2025-09-01" },
+        { title: "Manutenção Mensal", value: 800, status: "Em andamento", deadline: "2025-12-15" },
+        { title: "Landing Page", value: 1200, status: "Concluído", deadline: "2025-10-01" },
+        { title: "Identidade Visual", value: 3000, status: "Em andamento", deadline: "2026-01-20" },
+        { title: "Consultoria SEO", value: 2500, status: "Concluído", deadline: "2025-08-15" },
+    ];
+
+    const jobPromises = dummyJobs.map((j, i) => {
+        const ref = doc(jobsRef);
+        // Assign random client
+        const client = clientIds[i % clientIds.length];
+        return setDoc(ref, {
+            ...j,
+            clientId: client.id,
+            clientName: client.name,
+            id: ref.id,
+            createdAt: Date.now(),
+        });
+    });
+
+    await Promise.all(jobPromises);
+}

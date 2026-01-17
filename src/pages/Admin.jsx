@@ -7,7 +7,8 @@ import {
   setUserPermissionsAdmin,
   setUserDisabledAdmin,
   clearUserDataAdmin,
-  deleteUserFS
+  deleteUserFS,
+  seedDataForUser
 } from "../app/firestore";
 import { ADMIN_EMAIL } from "../app/admin";
 
