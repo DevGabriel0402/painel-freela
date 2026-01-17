@@ -6,6 +6,7 @@ import Clientes from "./pages/Clientes";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Admin from "./pages/Admin";
 
 import Jobs from "./pages/Jobs";
 import Settings from "./pages/Settings";
@@ -16,6 +17,7 @@ import { defaultSettings, mergeSettings, clampHex } from "./app/defaultSettings"
 import { makeTheme } from "./styles/theme";
 import { PrivacyContext } from "./app/privacy";
 import { useAuth } from "./app/auth";
+import { isAdminUser } from "./app/admin";
 import {
   subscribeData,
   addClientFS,
@@ -25,7 +27,9 @@ import {
   updateJobFS,
   removeJobFS,
   saveSettingsFS,
+  createUserProfile,
 } from "./app/firestore";
+import { logout } from "./app/auth";
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -37,15 +41,41 @@ function PrivateRoute({ children }) {
   return children;
 }
 
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) return <div>Carregando...</div>;
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!isAdminUser(user)) return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
+function PermissionRoute({ allow, fallback = "/dashboard", children }) {
+  if (!allow) return <Navigate to={fallback} replace />;
+  return children;
+}
+
 export default function App() {
   const { user, loading } = useAuth();
   // Estado único para dados vindos do Firestore
-  const [data, setData] = useState({ clients: [], jobs: [], settings: null });
+  const [data, setData] = useState({ clients: [], jobs: [], settings: null, profile: null });
+  const [blockedMsg, setBlockedMsg] = useState("");
+
+  // Garante que o perfil existe (inclusive login Google)
+  useEffect(() => {
+    if (!user) return;
+    createUserProfile(user.uid, {
+      email: user.email || "",
+      displayName: user.displayName || "",
+    }).catch(() => {});
+  }, [user]);
 
   // Sync com Firestore quando usuário estiver logado
   useEffect(() => {
     if (!user) {
-      setData({ clients: [], jobs: [], settings: null });
+      setData({ clients: [], jobs: [], settings: null, profile: null });
+      setBlockedMsg("");
       return;
     }
     const unsub = subscribeData(user.uid, (newData) => {
@@ -53,6 +83,15 @@ export default function App() {
     });
     return () => unsub();
   }, [user]);
+
+  // Se o admin desativar o usuário, bloqueia e faz logout
+  useEffect(() => {
+    if (!user) return;
+    if (data?.profile?.disabled) {
+      setBlockedMsg("Seu acesso foi desativado pelo administrador.");
+      logout().catch(() => {});
+    }
+  }, [user, data?.profile?.disabled]);
 
   // Tema UI (Dark/Light) e Privacidade podem continuar locais (por dispositivo)
   const [mode, setMode] = useLocalStorage("ui_mode_v1", "dark");
@@ -63,6 +102,17 @@ export default function App() {
   const settings = useMemo(() => {
     return mergeSettings(data.settings || defaultSettings);
   }, [data.settings]);
+
+  const permissions = useMemo(() => {
+    const p = data?.profile?.permissions || {};
+    return {
+      dashboard: p.dashboard !== false,
+      jobs: p.jobs !== false,
+      clientes: p.clientes !== false,
+      settings: p.settings !== false,
+      admin: isAdminUser(user),
+    };
+  }, [data?.profile?.permissions, user]);
 
   // Sync mode from settings if available (Firestore wins over LocalStorage when changed)
   useEffect(() => {
@@ -157,6 +207,18 @@ export default function App() {
 
   if (loading) return null; // Evita flash de conteúdo
 
+  if (blockedMsg) {
+    return (
+      <div style={{ padding: 24, maxWidth: 520, margin: "40px auto", fontFamily: "system-ui" }}>
+        <h2 style={{ marginBottom: 8 }}>Acesso desativado</h2>
+        <p style={{ opacity: 0.85 }}>{blockedMsg}</p>
+        <p style={{ opacity: 0.7, fontSize: 13, marginTop: 12 }}>
+          Se isso foi um engano, fale com o administrador.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
@@ -169,50 +231,72 @@ export default function App() {
             path="/*"
             element={
               <PrivateRoute>
-                <Layout mode={mode} onToggleMode={toggleMode} settings={settings}>
+                <Layout
+                  mode={mode}
+                  onToggleMode={toggleMode}
+                  settings={settings}
+                  permissions={permissions}
+                >
                   <Routes>
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route
                       path="/dashboard"
                       element={
-                        <Dashboard jobs={jobs} clients={clients} settings={settings} />
+                        <PermissionRoute allow={permissions.dashboard}>
+                          <Dashboard jobs={jobs} clients={clients} settings={settings} />
+                        </PermissionRoute>
                       }
                     />
                     <Route
                       path="/clientes"
                       element={
-                        <Clientes
-                          clients={clients}
-                          onAddClient={addClient}
-                          onRemoveClient={removeClient}
-                          onUpdateClient={updateClient}
-                        />
+                        <PermissionRoute allow={permissions.clientes}>
+                          <Clientes
+                            clients={clients}
+                            onAddClient={addClient}
+                            onRemoveClient={removeClient}
+                            onUpdateClient={updateClient}
+                          />
+                        </PermissionRoute>
                       }
                     />
                     <Route
                       path="/jobs"
                       element={
-                        <Jobs
-                          clients={clients}
-                          jobs={jobs}
-                          onAddJob={addJob}
-                          onTogglePaid={togglePaid}
-                          onRemoveJob={removeJob}
-                          onUpdateStatus={updateStatus}
-                          onUpdateJob={updateJob}
-                          settings={settings}
-                        />
+                        <PermissionRoute allow={permissions.jobs}>
+                          <Jobs
+                            clients={clients}
+                            jobs={jobs}
+                            onAddJob={addJob}
+                            onTogglePaid={togglePaid}
+                            onRemoveJob={removeJob}
+                            onUpdateStatus={updateStatus}
+                            onUpdateJob={updateJob}
+                            settings={settings}
+                          />
+                        </PermissionRoute>
                       }
                     />
                     <Route
                       path="/settings"
                       element={
-                        <Settings
-                          settings={settings}
-                          onSave={saveSettings}
-                          mode={mode}
-                          onToggleMode={toggleMode}
-                        />
+                        <PermissionRoute allow={permissions.settings}>
+                          <Settings
+                            settings={settings}
+                            onSave={saveSettings}
+                            mode={mode}
+                            onToggleMode={toggleMode}
+                          />
+                        </PermissionRoute>
+                      }
+                    />
+
+                    <Route
+                      path="/admin"
+                      element={
+                        <AdminRoute>
+                          <Admin />
+                        </AdminRoute>
                       }
                     />
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />

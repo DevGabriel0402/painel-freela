@@ -5,21 +5,30 @@ service cloud.firestore {
     // Regra principal: O usuário só pode acessar documentos
     // onde o ID do documento pai (users/{userId}) é igual ao seu UID.
     
+    function isAdmin() {
+      return request.auth.token.email == 'gabriellucas2301@gmail.com';
+    }
+
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       
       // Regras recursivas para subcoleções (clients, jobs)
       match /clients/{clientId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+         allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }
       
       match /jobs/{jobId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+         allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }
 
       match /settings/{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+         allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }
+    }
+    
+    // Permitir listar usuários apenas para o admin
+    match /users {
+      allow read: if request.auth != null && isAdmin();
     }
   }
 }

@@ -9,6 +9,7 @@ import {
     query,
     orderBy,
     getDoc,
+    getDocs,
 } from "firebase/firestore";
 
 /**
@@ -25,16 +26,20 @@ export function subscribeData(uid, onData) {
     const jobsRef = collection(userRef, "jobs");
     const settingsRef = doc(userRef, "settings", "main");
 
+    // Perfil do usuário (para permissões e administração)
+    const profileRef = userRef;
+
     const qClients = query(clientsRef, orderBy("createdAt", "desc"));
     const qJobs = query(jobsRef, orderBy("createdAt", "desc"));
 
     let clients = [];
     let jobs = [];
     let settings = null;
+    let profile = null;
 
     // Helper para emitir apenas quando tivermos dados iniciais (opcional, 
     // mas aqui vamos emitir sempre que chegar algo de qualquer um)
-    const emit = () => onData({ clients, jobs, settings });
+    const emit = () => onData({ clients, jobs, settings, profile });
 
     const unsubClients = onSnapshot(qClients, (snap) => {
         clients = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -55,10 +60,16 @@ export function subscribeData(uid, onData) {
         emit();
     });
 
+    const unsubProfile = onSnapshot(profileRef, (snap) => {
+        profile = snap.exists() ? snap.data() : null;
+        emit();
+    });
+
     return () => {
         unsubClients();
         unsubJobs();
         unsubSettings();
+        unsubProfile();
     };
 }
 
@@ -78,11 +89,72 @@ export async function createUserProfile(uid, data) {
         await setDoc(ref, {
             ...data,
             createdAt: Date.now(),
+            // permissões padrão (o admin pode alterar depois)
+            permissions: {
+                dashboard: true,
+                jobs: true,
+                clientes: true,
+                settings: true,
+            },
+            disabled: false,
         });
         // Cria também as settings padrão para garantir que a estrutura exista
         const settingsRef = doc(db, "users", uid, "settings", "main");
         await setDoc(settingsRef, { appName: "Painel Freela" }, { merge: true });
     }
+}
+
+// ============ ADMIN ============
+
+// Lista todos os usuários (admin apenas; depende das rules)
+export function subscribeAllUsers(onUsers) {
+    const usersRef = collection(db, "users");
+    const qUsers = query(usersRef, orderBy("createdAt", "desc"));
+    return onSnapshot(qUsers, (snap) => {
+        const users = snap.docs.map((d) => ({ uid: d.id, ...d.data() }));
+        onUsers(users);
+    });
+}
+
+export async function updateUserAdmin(targetUid, patch) {
+    if (!targetUid) return;
+    const ref = doc(db, "users", targetUid);
+    await updateDoc(ref, patch);
+}
+
+export async function setUserPermissionsAdmin(targetUid, permissions) {
+    if (!targetUid) return;
+    const ref = doc(db, "users", targetUid);
+    await updateDoc(ref, { permissions });
+}
+
+export async function setUserDisabledAdmin(targetUid, disabled) {
+    if (!targetUid) return;
+    const ref = doc(db, "users", targetUid);
+    await updateDoc(ref, { disabled: Boolean(disabled) });
+}
+
+// Limpa dados do usuário no Firestore (clients, jobs, settings/main).
+// Obs: isso NÃO remove a conta de Auth (não é possível pelo front-end).
+export async function clearUserDataAdmin(targetUid) {
+    if (!targetUid) return;
+    const userRef = doc(db, "users", targetUid);
+
+    const clientsRef = collection(userRef, "clients");
+    const jobsRef = collection(userRef, "jobs");
+    const settingsRef = doc(userRef, "settings", "main");
+
+    const [clientsSnap, jobsSnap] = await Promise.all([
+        getDocs(clientsRef),
+        getDocs(jobsRef),
+    ]);
+
+    const deletes = [];
+    clientsSnap.forEach((d) => deletes.push(deleteDoc(d.ref)));
+    jobsSnap.forEach((d) => deletes.push(deleteDoc(d.ref)));
+    deletes.push(deleteDoc(settingsRef));
+
+    await Promise.allSettled(deletes);
 }
 
 // --- CLIENTS ---

@@ -12,13 +12,14 @@ import {
   Eye,
   EyeOff,
   LogOut,
+  Shield,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../app/useLocalStorage";
 import { usePrivacy } from "../app/privacy";
 import { logout } from "../app/auth";
 
-export default function Layout({ children, mode, onToggleMode, settings }) {
+export default function Layout({ children, mode, onToggleMode, settings, permissions }) {
   const [collapsed, setCollapsed] = useLocalStorage("sidebar_collapsed_v1", false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,6 +29,14 @@ export default function Layout({ children, mode, onToggleMode, settings }) {
   const appDescription = settings?.appDescription || "LocalStorage • MVP";
   const logoUrl = (settings?.logoUrl || "").trim();
 
+  const perms = {
+    dashboard: permissions?.dashboard !== false,
+    jobs: permissions?.jobs !== false,
+    clientes: permissions?.clientes !== false,
+    settings: permissions?.settings !== false,
+    admin: Boolean(permissions?.admin),
+  };
+
   const title = location.pathname.startsWith("/dashboard")
     ? "Dashboard"
     : location.pathname.startsWith("/jobs")
@@ -36,6 +45,8 @@ export default function Layout({ children, mode, onToggleMode, settings }) {
         ? "Clientes"
         : location.pathname.startsWith("/settings")
           ? "Configurações"
+          : location.pathname.startsWith("/admin")
+            ? "Administração"
           : "Painel";
 
   async function handleLogout() {
@@ -70,25 +81,40 @@ export default function Layout({ children, mode, onToggleMode, settings }) {
         </Brand>
 
         <Nav>
-          <NavItem to="/dashboard" title="Dashboard" $collapsed={collapsed}>
-            <ChartNoAxesCombined size={18} />
-            {!collapsed ? <span>Dashboard</span> : null}
-          </NavItem>
+          {permissions?.dashboard !== false ? (
+            <NavItem to="/dashboard" title="Dashboard" $collapsed={collapsed}>
+              <ChartNoAxesCombined size={18} />
+              {!collapsed ? <span>Dashboard</span> : null}
+            </NavItem>
+          ) : null}
 
-          <NavItem to="/jobs" title="Jobs" $collapsed={collapsed}>
-            <Briefcase size={18} />
-            {!collapsed ? <span>Jobs</span> : null}
-          </NavItem>
+          {permissions?.jobs !== false ? (
+            <NavItem to="/jobs" title="Jobs" $collapsed={collapsed}>
+              <Briefcase size={18} />
+              {!collapsed ? <span>Jobs</span> : null}
+            </NavItem>
+          ) : null}
 
-          <NavItem to="/clientes" title="Clientes" $collapsed={collapsed}>
-            <Users size={18} />
-            {!collapsed ? <span>Clientes</span> : null}
-          </NavItem>
+          {permissions?.clientes !== false ? (
+            <NavItem to="/clientes" title="Clientes" $collapsed={collapsed}>
+              <Users size={18} />
+              {!collapsed ? <span>Clientes</span> : null}
+            </NavItem>
+          ) : null}
 
-          <NavItem to="/settings" title="Configurações" $collapsed={collapsed}>
-            <Settings size={18} />
-            {!collapsed ? <span>Configurações</span> : null}
-          </NavItem>
+          {permissions?.settings !== false ? (
+            <NavItem to="/settings" title="Configurações" $collapsed={collapsed}>
+              <Settings size={18} />
+              {!collapsed ? <span>Configurações</span> : null}
+            </NavItem>
+          ) : null}
+
+          {permissions?.admin ? (
+            <NavItem to="/admin" title="Administração" $collapsed={collapsed}>
+              <Shield size={18} />
+              {!collapsed ? <span>Administração</span> : null}
+            </NavItem>
+          ) : null}
         </Nav>
 
         <SideFooter $collapsed={collapsed}>
@@ -143,25 +169,33 @@ export default function Layout({ children, mode, onToggleMode, settings }) {
       </Main>
 
       <MobileNav>
-        <MobileItem to="/dashboard">
-          <ChartNoAxesCombined size={20} />
-          <small>Dash</small>
-        </MobileItem>
+        {permissions?.dashboard !== false ? (
+          <MobileItem to="/dashboard">
+            <ChartNoAxesCombined size={20} />
+            <small>Dash</small>
+          </MobileItem>
+        ) : null}
 
-        <MobileItem to="/jobs">
-          <Briefcase size={20} />
-          <small>Jobs</small>
-        </MobileItem>
+        {permissions?.jobs !== false ? (
+          <MobileItem to="/jobs">
+            <Briefcase size={20} />
+            <small>Jobs</small>
+          </MobileItem>
+        ) : null}
 
-        <MobileItem to="/clientes">
-          <Users size={20} />
-          <small>Clientes</small>
-        </MobileItem>
+        {permissions?.clientes !== false ? (
+          <MobileItem to="/clientes">
+            <Users size={20} />
+            <small>Clientes</small>
+          </MobileItem>
+        ) : null}
 
-        <MobileItem to="/settings">
-          <Settings size={20} />
-          <small>Config</small>
-        </MobileItem>
+        {permissions?.settings !== false ? (
+          <MobileItem to="/settings">
+            <Settings size={20} />
+            <small>Config</small>
+          </MobileItem>
+        ) : null}
       </MobileNav>
     </Shell>
   );

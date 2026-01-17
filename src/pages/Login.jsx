@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { loginWithEmail, loginWithGoogle } from "../app/auth";
+import { createUserProfile } from "../app/firestore";
 import { Button } from "../components/ui";
 import Logo from "../assets/Freela Logo.PNG";
 import GoogleIcon from "../assets/google-icon.svg";
@@ -19,8 +20,11 @@ export default function Login() {
     setLoading(true);
     try {
       const { user } = await loginWithEmail(email, password);
-      // Opcional: garantir que o perfil existe se tido sido criado manualmente
-      // await createUserProfile(user.uid, { email: user.email });
+      // Garante que o perfil exista (para aparecer no admin)
+      await createUserProfile(user.uid, {
+        email: user.email || email,
+        displayName: user.displayName || "",
+      });
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -32,7 +36,13 @@ export default function Login() {
 
   async function handleGoogle() {
     try {
-      await loginWithGoogle();
+      const result = await loginWithGoogle();
+      // loginWithGoogle não retorna usuário; então pegamos do auth.currentUser via hook?
+      // Aqui usamos o retorno do popup quando disponível.
+      const u = result?.user;
+      if (u) {
+        await createUserProfile(u.uid, { email: u.email || "", displayName: u.displayName || "" });
+      }
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
