@@ -154,11 +154,6 @@ export default function Layout({ children, mode, onToggleMode, settings }) {
           <Settings size={20} />
           <small>Config</small>
         </MobileItem>
-
-        <MobileItem as="button" onClick={handleLogout}>
-          <LogOut size={20} />
-          <small>Sair</small>
-        </MobileItem>
       </MobileNav>
     </Shell>
   );
@@ -217,7 +212,7 @@ const Logo = styled.div`
 const BrandTitle = styled.div`
   font-weight: 900;
   letter-spacing: 0.2px;
-  white-space: nowrap; 
+  white-space: nowrap;
 `;
 
 const BrandSub = styled.div`
@@ -400,7 +395,7 @@ const MobileNav = styled.nav`
   z-index: 99;
 
   display: none;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   padding: 10px;
 

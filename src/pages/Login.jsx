@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { loginWithEmail, loginWithGoogle } from "../app/auth";
 import { Button } from "../components/ui";
+import Logo from "../assets/Freela Logo.PNG";
+import GoogleIcon from "../assets/google-icon.svg";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -41,8 +43,8 @@ export default function Login() {
   return (
     <Container>
       <Card>
-        <Title>Bem-vindo de volta!</Title>
-        <Subtitle>Acesse seu painel de freelancer</Subtitle>
+        <img src={Logo} alt="Freela Logo" />
+        <Subtitle>Acesse seu painel do Flowyhub</Subtitle>
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>
@@ -77,7 +79,7 @@ export default function Login() {
         <Divider>ou</Divider>
 
         <GoogleButton type="button" onClick={handleGoogle}>
-          Continuar com Google
+          <img src={GoogleIcon} alt="Google Icon" /> Continuar com Google
         </GoogleButton>
 
         <FooterText>
@@ -106,6 +108,14 @@ const Card = styled.div`
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid ${({ theme }) => theme.border};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  img {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 const Title = styled.h1`
@@ -126,6 +136,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
 `;
 
 const InputGroup = styled.div`
@@ -198,6 +209,14 @@ const GoogleButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+
+  img {
+    height: 30px;
+  }
 
   &:hover {
     background-color: ${({ theme }) => theme.hover};

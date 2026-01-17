@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { registerWithEmail } from "../app/auth";
 import { createUserProfile } from "../app/firestore";
 import { Button } from "../components/ui";
+import Logo from "../assets/Freela Logo.PNG";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -45,6 +46,7 @@ export default function Register() {
   return (
     <Container>
       <Card>
+        <img src={Logo} alt="Freela Logo" />
         <Title>Crie sua conta</Title>
         <Subtitle>Comece a organizar seus projetos hoje</Subtitle>
 
@@ -115,6 +117,14 @@ const Card = styled.div`
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid ${({ theme }) => theme.border};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  img {
+    width: 50px;
+    height: 50px;
+  }
 `;
 
 const Title = styled.h1`
@@ -135,6 +145,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
 `;
 
 const InputGroup = styled.div`
