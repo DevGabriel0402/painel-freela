@@ -180,13 +180,14 @@ export default function App() {
 
   useEffect(() => {
     // Update mobile browser theme color
-    let meta = document.querySelector('meta[name="theme-color"]');
+    const color = theme.colors.bg;
+    let meta = document.querySelector("meta[name='theme-color']");
     if (!meta) {
       meta = document.createElement("meta");
-      meta.setAttribute("name", "theme-color");
+      meta.name = "theme-color";
       document.head.appendChild(meta);
     }
-    meta.setAttribute("content", theme.colors.bg);
+    meta.content = color;
   }, [theme.colors.bg]);
 
   // --- Data Actions Wrappers ---
