@@ -63,13 +63,6 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
 
   // Detect permission change
   useEffect(() => {
-    // Log state transitions
-    console.log("PERM CHECK:", {
-      prev: prevSettingsPerm,
-      curr: permissions?.settings,
-      isAdmin: permissions?.admin
-    });
-
     // False -> True (Liberado)
     if (prevSettingsPerm === false && permissions?.settings === true) {
       toast.success("Acesso Liberado: O administrador liberou o acesso às Configurações.");

@@ -178,6 +178,17 @@ export default function App() {
     link.setAttribute("href", url);
   }, [settings?.logoUrl]);
 
+  useEffect(() => {
+    // Update mobile browser theme color
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "theme-color");
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", theme.colors.bg);
+  }, [theme.colors.bg]);
+
   // --- Data Actions Wrappers ---
 
   const clients = data.clients || [];
