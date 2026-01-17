@@ -100,7 +100,7 @@ export async function createUserProfile(uid, data) {
         });
         // Cria também as settings padrão para garantir que a estrutura exista
         const settingsRef = doc(db, "users", uid, "settings", "main");
-        await setDoc(settingsRef, { appName: "Painel Freela" }, { merge: true });
+        await setDoc(settingsRef, { appName: "Flowyhub" }, { merge: true });
     }
 }
 

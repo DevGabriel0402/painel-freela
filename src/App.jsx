@@ -153,7 +153,7 @@ export default function App() {
   // --- Document Effects ---
 
   useEffect(() => {
-    const name = (settings?.appName || "Painel Freela").trim();
+    const name = (settings?.appName || "Flowyhub").trim();
     document.title = name;
   }, [settings?.appName]);
 

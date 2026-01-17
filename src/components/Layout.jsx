@@ -29,7 +29,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
   const navigate = useNavigate();
   const { privacyOn, togglePrivacy } = usePrivacy();
 
-  const appName = settings?.appName || "Painel Freela";
+  const appName = settings?.appName || "Flowyhub";
   const appDescription = settings?.appDescription || "LocalStorage • MVP";
   const logoUrl = (settings?.logoUrl || "").trim();
 
@@ -391,7 +391,7 @@ const NavItem = styled(NavLink)`
        O usuário pediu "de acordo com o modo", então cor de texto forte é mais seguro que accent se o accent for fixo. 
        Mas theme.colors.accent adapta? Sim. Vou usar theme.colors.text para garantir contraste máximo. */
     color: ${({ theme }) =>
-      theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
+    theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
     border: 1px solid ${({ theme }) => theme.colors.border};
     border-right-color: ${({ theme }) => theme.colors.bg};
 
@@ -424,8 +424,8 @@ const NavItem = styled(NavLink)`
 
   &:hover {
     ${({ $locked }) =>
-      !$locked &&
-      `
+    !$locked &&
+    `
         background: ${({ theme }) => theme.colors.surface2};
         color: ${({ theme }) => theme.colors.text};
     `}
@@ -580,7 +580,7 @@ const MobileNav = styled.nav`
 
   border-top: 1px solid
     ${({ theme }) =>
-      theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"};
+    theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"};
   background: ${({ theme }) =>
     theme.mode === "dark" ? "rgba(18, 18, 20, 0.85)" : "rgba(255, 255, 255, 0.85)"};
   backdrop-filter: blur(16px);
@@ -665,9 +665,9 @@ const MobileItem = styled(NavLink)`
 
   &:hover {
     ${({ $locked, $special, theme }) =>
-      !$locked &&
-      !$special &&
-      `
+    !$locked &&
+    !$special &&
+    `
       // Hover tbm se adapta
       color: ${theme.mode === "dark" ? "#ffffff" : "#000000"};
     `}

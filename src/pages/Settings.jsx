@@ -128,7 +128,7 @@ export default function Settings({ settings, onSave, mode, onToggleMode }) {
             <Input
               value={draft.appName || ""}
               onChange={(e) => set({ appName: e.target.value })}
-              placeholder="Ex: Painel Freela"
+              placeholder="Ex: Flowyhub"
             />
           </div>
           <div style={{ marginTop: 14 }}>
