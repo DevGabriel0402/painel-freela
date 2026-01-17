@@ -29,6 +29,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
   const appDescription = settings?.appDescription || "LocalStorage • MVP";
   const logoUrl = (settings?.logoUrl || "").trim();
 
+  // Definição clara de permissões
   const perms = {
     dashboard: permissions?.dashboard !== false,
     jobs: permissions?.jobs !== false,
@@ -36,6 +37,9 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
     settings: permissions?.settings !== false,
     admin: Boolean(permissions?.admin),
   };
+
+  // Cálculo dinâmico de quantos itens serão exibidos no menu
+  const visibleItemsCount = Object.values(perms).filter(Boolean).length;
 
   const title = location.pathname.startsWith("/dashboard")
     ? "Dashboard"
@@ -47,7 +51,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
           ? "Configurações"
           : location.pathname.startsWith("/admin")
             ? "Administração"
-          : "Painel";
+            : "Painel";
 
   async function handleLogout() {
     await logout();
@@ -81,40 +85,40 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
         </Brand>
 
         <Nav>
-          {permissions?.dashboard !== false ? (
+          {perms.dashboard && (
             <NavItem to="/dashboard" title="Dashboard" $collapsed={collapsed}>
               <ChartNoAxesCombined size={18} />
               {!collapsed ? <span>Dashboard</span> : null}
             </NavItem>
-          ) : null}
+          )}
 
-          {permissions?.jobs !== false ? (
+          {perms.jobs && (
             <NavItem to="/jobs" title="Jobs" $collapsed={collapsed}>
               <Briefcase size={18} />
               {!collapsed ? <span>Jobs</span> : null}
             </NavItem>
-          ) : null}
+          )}
 
-          {permissions?.clientes !== false ? (
+          {perms.clientes && (
             <NavItem to="/clientes" title="Clientes" $collapsed={collapsed}>
               <Users size={18} />
               {!collapsed ? <span>Clientes</span> : null}
             </NavItem>
-          ) : null}
+          )}
 
-          {permissions?.settings !== false ? (
+          {perms.settings && (
             <NavItem to="/settings" title="Configurações" $collapsed={collapsed}>
               <Settings size={18} />
               {!collapsed ? <span>Configurações</span> : null}
             </NavItem>
-          ) : null}
+          )}
 
-          {permissions?.admin ? (
+          {perms.admin && (
             <NavItem to="/admin" title="Administração" $collapsed={collapsed}>
               <Shield size={18} />
               {!collapsed ? <span>Administração</span> : null}
             </NavItem>
-          ) : null}
+          )}
         </Nav>
 
         <SideFooter $collapsed={collapsed}>
@@ -140,7 +144,15 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
             <DesktopTitle>{title}</DesktopTitle>
             <MobileTitle>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {logoUrl ? <img src={logoUrl} alt="logo" style={{ maxHeight: 24, borderRadius: 6 }} /> : <LayoutGrid size={20} />}
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt="logo"
+                    style={{ maxHeight: 24, borderRadius: 6 }}
+                  />
+                ) : (
+                  <LayoutGrid size={20} />
+                )}
                 {appName}
               </div>
             </MobileTitle>
@@ -168,34 +180,42 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
         <Content>{children}</Content>
       </Main>
 
-      <MobileNav>
-        {permissions?.dashboard !== false ? (
+      {/* AQUI ESTÁ A CORREÇÃO: Passando o count para o CSS */}
+      <MobileNav $count={visibleItemsCount}>
+        {perms.dashboard && (
           <MobileItem to="/dashboard">
             <ChartNoAxesCombined size={20} />
             <small>Dash</small>
           </MobileItem>
-        ) : null}
+        )}
 
-        {permissions?.jobs !== false ? (
+        {perms.jobs && (
           <MobileItem to="/jobs">
             <Briefcase size={20} />
             <small>Jobs</small>
           </MobileItem>
-        ) : null}
+        )}
 
-        {permissions?.clientes !== false ? (
+        {perms.clientes && (
           <MobileItem to="/clientes">
             <Users size={20} />
             <small>Clientes</small>
           </MobileItem>
-        ) : null}
+        )}
 
-        {permissions?.settings !== false ? (
+        {perms.settings && (
           <MobileItem to="/settings">
             <Settings size={20} />
             <small>Config</small>
           </MobileItem>
-        ) : null}
+        )}
+
+        {perms.admin && (
+          <MobileItem to="/admin">
+            <Shield size={20} />
+            <small>Admin</small>
+          </MobileItem>
+        )}
       </MobileNav>
     </Shell>
   );
@@ -314,20 +334,12 @@ const SideFooter = styled.div`
   padding: ${({ $collapsed }) => ($collapsed ? "10px 0" : "14px 6px")};
   display: grid;
   align-items: center;
-
   gap: 10px;
 `;
 
 const FooterActions = styled.div`
   display: grid;
   gap: 10px;
-
-  ${({ $collapsed }) =>
-    $collapsed
-      ? `
-        gap: 10px;
-      `
-      : ""};
 `;
 
 const FooterBtn = styled.button`
@@ -450,7 +462,10 @@ const MobileNav = styled.nav`
   z-index: 99;
 
   display: none;
-  grid-template-columns: repeat(4, 1fr);
+
+  /* CORREÇÃO AQUI: Grid dinâmico baseado no número de itens */
+  grid-template-columns: repeat(${({ $count }) => $count || 1}, 1fr);
+
   gap: 10px;
   padding: 10px;
 
@@ -491,6 +506,7 @@ const MobileItem = styled(NavLink)`
     filter: brightness(1.05);
   }
 `;
+
 const LogoImg = styled.img`
   width: 100%;
   height: 100%;
