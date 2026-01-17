@@ -1,4 +1,6 @@
 import styled from "styled-components";
+import { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 import {
   Briefcase,
   Users,
@@ -14,6 +16,7 @@ import {
   LogOut,
   Shield,
   Lock,
+  X,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import CookieConsent from "./CookieConsent";
@@ -54,6 +57,16 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
             : location.pathname.startsWith("/locked")
               ? "Acesso Negado"
               : "Painel";
+
+  /* const [showPermToast, setShowPermToast] = useState(false); */
+  const prevSettingsPerm = usePrevious(permissions?.settings);
+
+  // Detect permission change false -> true
+  useEffect(() => {
+    if (prevSettingsPerm === false && permissions?.settings === true) {
+      toast.success("Acesso Liberado: O administrador liberou o acesso às Configurações.");
+    }
+  }, [permissions?.settings, prevSettingsPerm]);
 
   async function handleLogout() {
     await logout();
@@ -311,7 +324,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
       </MobileNav>
 
       <CookieConsent />
-    </Shell>
+    </Shell >
   );
 }
 
@@ -728,3 +741,11 @@ const SiteFooter = styled.footer`
     }
   }
 `;
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}

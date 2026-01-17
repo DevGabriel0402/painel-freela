@@ -233,12 +233,12 @@ export default function Admin() {
                 </div>
 
                 <div>
-                  <div style={{ fontWeight: 900, marginBottom: 8 }}>Salvar alterações</div>
-                  <Row $gap="10px" $wrap>
+                  <div style={{ fontWeight: 900, marginBottom: 8, textAlign: "right" }}>Salvar alterações</div>
+                  <Row $gap="10px" $wrap style={{ justifyContent: "flex-end" }}>
+                    {isBusy ? <CardTitle style={{ alignSelf: "center" }}>Processando...</CardTitle> : null}
                     <Button type="button" $variant="primary" onClick={() => saveUserPerms(u.uid)} disabled={isBusy}>
                       <Save size={18} /> Salvar permissões
                     </Button>
-                    {isBusy ? <CardTitle>Processando...</CardTitle> : null}
                   </Row>
                 </div>
               </Grid>

@@ -10,6 +10,8 @@ import Admin from "./pages/Admin";
 import Locked from "./pages/Locked"; // Import Locked Page
 
 import { Analytics } from "@vercel/analytics/react"
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Jobs from "./pages/Jobs";
 import Settings from "./pages/Settings";
@@ -314,6 +316,7 @@ export default function App() {
         </Routes>
       </PrivacyContext.Provider>
       <Analytics />
+      <ToastContainer position="bottom-right" theme={mode} />
     </ThemeProvider>
   );
 }
