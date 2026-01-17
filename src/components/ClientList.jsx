@@ -48,8 +48,8 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
       ) : (
         filtered.map((c) => (
           <Card key={c.id}>
-            <Row $between>
-              <Row>
+            <Row $between $wrap="true">
+              <Row style={{ flex: 1, minWidth: "200px" }}>
                 <Avatar>
                   <User size={18} />
                 </Avatar>
@@ -63,15 +63,15 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
                 </div>
               </Row>
 
-              <Row>
+              <Row style={{ marginTop: 4 }}>
                 <Pill>cliente</Pill>
 
                 <Button type="button" onClick={() => openEdit(c)} title="Editar">
-                  <Pencil size={18} /> Editar
+                  <Pencil size={18} /> <span className="mobile-hide">Editar</span>
                 </Button>
 
                 <Button $variant="danger" onClick={() => onRemove(c.id)} type="button">
-                  <Trash2 size={18} /> Remover
+                  <Trash2 size={18} /> <span className="mobile-hide">Remover</span>
                 </Button>
               </Row>
             </Row>
@@ -171,6 +171,7 @@ const Avatar = styled.div`
   place-items: center;
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.surface2};
+  flex-shrink: 0;
 `;
 
 const Notes = styled.div`

@@ -19,4 +19,8 @@ export const GlobalStyle = createGlobalStyle`
 
   a { color: inherit; text-decoration: none; }
   button, input, select, textarea { font: inherit; }
+
+  @media(max-width: 600px) {
+    .mobile-hide { display: none; }
+  }
 `;

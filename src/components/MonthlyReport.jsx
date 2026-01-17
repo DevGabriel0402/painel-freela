@@ -1,11 +1,23 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Card, CardTitle, CardValue, Grid, Row, Stack, Select, Pill, Button } from "./ui";
-import { CalendarDays, TrendingUp, TrendingDown, ListChecks } from "lucide-react";
+import { CalendarDays, TrendingUp, TrendingDown, ListChecks, FileSpreadsheet, FileText } from "lucide-react";
 import { formatBRL, formatDateBR } from "../app/utils";
 import styled from "styled-components";
 
 import { downloadCSV } from "../app/exportCsv";
 import { printReportAsPDF } from "../app/exportPdf";
+
+// ... (functions monthOptions, getMonthRange, inMonth remain the same) 
+// BUT we need to make sure we don't delete them if we are replacing a chunk.
+// The user prompt implies I should modify the COMPONENT RETURN.
+// I will target the imports and the Component Return.
+
+// ...
+
+// Re-targeting to include imports and the Component return block safely.
+// Since the file might be large, I'll do 2 edits if needed, or widely target if safe.
+// Let's rely on flexible matching.
+
 
 function monthOptions() {
   const now = new Date();
@@ -15,9 +27,13 @@ function monthOptions() {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
+
+    const label = d.toLocaleString("pt-BR", { month: "long", year: "numeric" });
+    const capitalized = label.charAt(0).toUpperCase() + label.slice(1);
+
     list.push({
       value: `${y}-${m}`,
-      label: d.toLocaleString("pt-BR", { month: "long", year: "numeric" }),
+      label: capitalized,
     });
   }
   return list;
@@ -46,6 +62,14 @@ export default function MonthlyReport({ jobs, clients }) {
     clients.forEach((c) => map.set(c.id, c));
     return map;
   }, [clients]);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 600);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const jobsDoMes = useMemo(() => {
     if (!month) return [];
@@ -162,22 +186,29 @@ export default function MonthlyReport({ jobs, clients }) {
 
   return (
     <Card>
-      <Row $between>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "space-between", alignItems: "center" }}>
         <Row>
           <Icon>
             <CalendarDays size={18} />
           </Icon>
           <div>
             <div style={{ fontWeight: 900 }}>Relatório do mês</div>
-            <CardTitle>Somatório por vencimento (dueDate)</CardTitle>
+            <CardTitle>Somatório por vencimento</CardTitle>
           </div>
         </Row>
 
-        <Row>
+        <div style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          gap: 8,
+          alignItems: isMobile ? "stretch" : "center",
+          flex: isMobile ? "1 1 100%" : "0 0 auto",
+          width: isMobile ? "100%" : "auto"
+        }}>
           <Select
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            style={{ maxWidth: 260 }}
+            style={{ width: isMobile ? "100%" : 220 }}
           >
             {options.map((o) => (
               <option key={o.value} value={o.value}>
@@ -186,15 +217,22 @@ export default function MonthlyReport({ jobs, clients }) {
             ))}
           </Select>
 
-          <Button type="button" onClick={exportCSV}>
-            Exportar CSV
-          </Button>
+          <div style={{
+            display: isMobile ? "grid" : "flex",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 8,
+            width: isMobile ? "auto" : "auto"
+          }}>
+            <Button type="button" onClick={exportCSV} title="Exportar CSV">
+              <FileSpreadsheet size={18} /> <span style={{ fontSize: 13 }}>CSV</span>
+            </Button>
 
-          <Button type="button" onClick={exportPDF}>
-            Salvar PDF
-          </Button>
-        </Row>
-      </Row>
+            <Button type="button" onClick={exportPDF} title="Salvar PDF">
+              <FileText size={18} /> <span style={{ fontSize: 13 }}>PDF</span>
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <Grid $cols="1fr 1fr 1.2fr" $colsMobile="1fr" style={{ marginTop: 12 }}>
         <Kpi
@@ -268,35 +306,35 @@ function Kpi({ icon, title, value, pill }) {
 }
 
 const Icon = styled.div`
-  width: 34px;
-  height: 34px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.surface2};
-`;
+      width: 34px;
+      height: 34px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      border: 1px solid ${({ theme }) => theme.colors.border};
+      background: ${({ theme }) => theme.colors.surface2};
+      `;
 
 const DividerLine = styled.div`
-  height: 1px;
-  background: ${({ theme }) => theme.colors.border};
-  margin: 12px 0;
-`;
+      height: 1px;
+      background: ${({ theme }) => theme.colors.border};
+      margin: 12px 0;
+      `;
 
 const Small = styled.div`
-  margin-top: 3px;
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.muted};
-`;
+      margin-top: 3px;
+      font-size: 12px;
+      color: ${({ theme }) => theme.colors.muted};
+      `;
 
 const Muted = styled.div`
-  font-size: 13px;
-  color: ${({ theme }) => theme.colors.muted};
-`;
+      font-size: 13px;
+      color: ${({ theme }) => theme.colors.muted};
+      `;
 
 const Ellipsis = styled.div`
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      `;

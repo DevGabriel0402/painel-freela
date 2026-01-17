@@ -40,6 +40,7 @@ export const Row = styled.div`
   align-items: center;
   gap: ${({ $gap }) => $gap || "10px"};
   justify-content: ${({ $between }) => ($between ? "space-between" : "flex-start")};
+  flex-wrap: ${({ $wrap }) => ($wrap ? "wrap" : "nowrap")};
 `;
 
 export const Stack = styled.div`
