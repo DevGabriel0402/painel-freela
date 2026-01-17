@@ -23,4 +23,8 @@ export const GlobalStyle = createGlobalStyle`
   @media(max-width: 600px) {
     .mobile-hide { display: none; }
   }
+
+  @media(min-width: 921px) {
+    .mobile-only { display: none !important; }
+  }
 `;

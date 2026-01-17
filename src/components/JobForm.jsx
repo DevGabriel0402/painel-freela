@@ -51,7 +51,7 @@ export default function JobForm({ clients, onAdd }) {
   return (
     <>
       <Card as="form" onSubmit={submit}>
-        <Grid $cols="1fr 1.3fr 0.9fr" $colsMobile="1fr">
+        <Grid $cols="1fr 1.5fr 1fr" $colsMobile="1fr">
           <Select
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
@@ -85,7 +85,7 @@ export default function JobForm({ clients, onAdd }) {
           </Select>
         </Grid>
 
-        <Grid $cols="1fr 1fr 0.9fr" $colsMobile="1fr" style={{ marginTop: 10 }}>
+        <Grid $cols="1fr 1.5fr 1fr" $colsMobile="1fr" style={{ marginTop: 10 }}>
           <Input
             value={value}
             onChange={(e) => setValue(e.target.value)}

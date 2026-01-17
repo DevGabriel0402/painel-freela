@@ -38,8 +38,8 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
   const perms = permissions || {};
   const isAdmin = perms.admin;
 
-  // Quantos itens no mobile? (NAV_ITEMS + Admin se houver)
-  const count = NAV_ITEMS.length + (isAdmin ? 1 : 0);
+  // Quantos itens no mobile? (NAV_ITEMS sem settings + Admin se houver)
+  const count = NAV_ITEMS.filter((i) => i.key !== "settings").length + (isAdmin ? 1 : 0);
 
   const title = location.pathname.startsWith("/dashboard")
     ? "Dashboard"
@@ -203,6 +203,13 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
 
           <TopActions>
             <TopThemeBtn
+              className="mobile-only"
+              onClick={() => navigate("/settings")}
+              title="Configurações"
+            >
+              <Settings size={18} />
+            </TopThemeBtn>
+            <TopThemeBtn
               onClick={togglePrivacy}
               title={privacyOn ? "Mostrar valores" : "Ocultar valores"}
               aria-label={
@@ -243,7 +250,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
 
       <MobileNav $count={count}>
         {(() => {
-          const items = [...NAV_ITEMS];
+          const items = NAV_ITEMS.filter((i) => i.key !== "settings");
           if (isAdmin) {
             // Inserir Admin no meio (index 2)
             items.splice(2, 0, {
@@ -297,7 +304,6 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
                     </div>
                   )}
                 </div>
-                {!item.isSpecial && <small>{item.label.slice(0, 4)}</small>}
               </MobileItem>
             );
           });
@@ -581,8 +587,7 @@ const TopThemeBtn = styled.button`
 `;
 
 const Content = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
 `;
 
 const MobileNav = styled.nav`

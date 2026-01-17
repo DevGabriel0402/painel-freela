@@ -105,7 +105,7 @@ export default function JobList({
                   <Select
                     value={j.status}
                     onChange={(e) => onUpdateStatus(j.id, e.target.value)}
-                    style={{ minWidth: 150 }}
+                    style={{ width: 160 }}
                   >
                     <option value="andamento">andamento</option>
                     <option value="entregue">entregue</option>
