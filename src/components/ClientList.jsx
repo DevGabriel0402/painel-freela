@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { formatBRL, formatDateBR, getInitials } from "../app/utils"; // Importa getInitials
+import { getInitials } from "../app/utils"; // Importa getInitials
 import { Card, Input, Row, Stack, Button, Pill, Textarea, Grid } from "./ui";
 import { Search, Trash2, User, Pencil } from "lucide-react";
 import styled from "styled-components";
@@ -61,9 +61,7 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
           <Card key={c.id}>
             <Row $between $wrap="true">
               <Row style={{ flex: 1, minWidth: "200px" }}>
-                <Avatar>
-                  {getInitials(c.name)}
-                </Avatar>
+                <Avatar>{getInitials(c.name)}</Avatar>
                 <div>
                   <div style={{ fontWeight: 850 }} data-sensitive="true">
                     {c.name}
@@ -81,7 +79,12 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
                   <Pencil size={18} />
                 </Button>
 
-                <Button $variant="danger" onClick={() => setDeleteTarget(c)} title="Remover" type="button">
+                <Button
+                  $variant="danger"
+                  onClick={() => setDeleteTarget(c)}
+                  title="Remover"
+                  type="button"
+                >
                   <Trash2 size={18} />
                 </Button>
               </Row>
@@ -110,7 +113,8 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
         onClose={() => setDeleteTarget(null)}
       >
         <div style={{ margin: "10px 0 20px 0" }}>
-          Tem certeza que deseja remover <b>{deleteTarget?.name}</b>? Essa ação não pode ser desfeita.
+          Tem certeza que deseja remover <b>{deleteTarget?.name}</b>? Essa ação não pode
+          ser desfeita.
         </div>
         <Row style={{ justifyContent: "flex-end", gap: 8 }}>
           <Button onClick={() => setDeleteTarget(null)}>Cancelar</Button>
@@ -203,7 +207,7 @@ const Avatar = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.accent};
   flex-shrink: 0;
-  
+
   font-weight: 700;
   font-size: 14px;
   color: #ffffff;
