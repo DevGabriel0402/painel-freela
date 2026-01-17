@@ -47,7 +47,9 @@ export default function MonthlyGoal({ jobs, settings }) {
       <Numbers>
         <div>
           <Small>Recebido</Small>
-          <Big data-sensitive="true">{formatMoney(receivedThisMonth, settings.currency)}</Big>
+          <Big data-sensitive="true">
+            {formatMoney(receivedThisMonth, settings.currency)}
+          </Big>
         </div>
 
         <div style={{ textAlign: "right" }}>
@@ -61,15 +63,17 @@ export default function MonthlyGoal({ jobs, settings }) {
       </Bar>
 
       <Hint>
-        {goal <= 0
-          ? "Defina uma meta nas configurações."
-          : remaining === 0
-            ? "Meta batida 🎉"
-            : (
-                <>
-                  Faltam <span data-sensitive="true">{formatMoney(remaining, settings.currency)}</span> para bater a meta.
-                </>
-              )}
+        {goal <= 0 ? (
+          "Defina uma meta nas configurações."
+        ) : remaining === 0 ? (
+          "Meta batida 🎉"
+        ) : (
+          <>
+            Faltam{" "}
+            <span data-sensitive="true">{formatMoney(remaining, settings.currency)}</span>{" "}
+            para bater a meta.
+          </>
+        )}
       </Hint>
     </Card>
   );

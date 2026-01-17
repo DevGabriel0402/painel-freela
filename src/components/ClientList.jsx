@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatBRL, formatDateBR, getInitials } from "../app/utils"; // Importa getInitials
 import { Card, Input, Row, Stack, Button, Pill, Textarea, Grid } from "./ui";
 import { Search, Trash2, User, Pencil } from "lucide-react";
 import styled from "styled-components";
@@ -7,6 +8,9 @@ import Modal from "./Modal";
 export default function ClientList({ clients, onRemove, onUpdate }) {
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState(null); // client
+  const [deleteTarget, setDeleteTarget] = useState(null); // client to delete
+
+  // ... (rest of logic same)
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -27,6 +31,13 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
   function saveEdit(patch) {
     onUpdate?.(editing.id, patch);
     closeEdit();
+  }
+
+  function confirmDelete() {
+    if (deleteTarget) {
+      onRemove(deleteTarget.id);
+      setDeleteTarget(null);
+    }
   }
 
   return (
@@ -51,7 +62,7 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
             <Row $between $wrap="true">
               <Row style={{ flex: 1, minWidth: "200px" }}>
                 <Avatar>
-                  <User size={18} />
+                  {getInitials(c.name)}
                 </Avatar>
                 <div>
                   <div style={{ fontWeight: 850 }} data-sensitive="true">
@@ -67,11 +78,11 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
                 <Pill>cliente</Pill>
 
                 <Button type="button" onClick={() => openEdit(c)} title="Editar">
-                  <Pencil size={18} /> <span className="mobile-hide">Editar</span>
+                  <Pencil size={18} />
                 </Button>
 
-                <Button $variant="danger" onClick={() => onRemove(c.id)} type="button">
-                  <Trash2 size={18} /> <span className="mobile-hide">Remover</span>
+                <Button $variant="danger" onClick={() => setDeleteTarget(c)} title="Remover" type="button">
+                  <Trash2 size={18} />
                 </Button>
               </Row>
             </Row>
@@ -81,6 +92,7 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
         ))
       )}
 
+      {/* Modals... */}
       <Modal
         open={!!editing}
         title="Editar cliente"
@@ -91,11 +103,30 @@ export default function ClientList({ clients, onRemove, onUpdate }) {
           <EditClientForm client={editing} onCancel={closeEdit} onSave={saveEdit} />
         ) : null}
       </Modal>
+
+      <Modal
+        open={!!deleteTarget}
+        title="Remover cliente"
+        onClose={() => setDeleteTarget(null)}
+      >
+        <div style={{ margin: "10px 0 20px 0" }}>
+          Tem certeza que deseja remover <b>{deleteTarget?.name}</b>? Essa ação não pode ser desfeita.
+        </div>
+        <Row style={{ justifyContent: "flex-end", gap: 8 }}>
+          <Button onClick={() => setDeleteTarget(null)}>Cancelar</Button>
+          <Button $variant="danger" onClick={confirmDelete}>
+            Sim, remover
+          </Button>
+        </Row>
+      </Modal>
     </Stack>
   );
 }
 
+// ... EditClientForm same ...
+
 function EditClientForm({ client, onCancel, onSave }) {
+  // ... same ...
   const [name, setName] = useState(client.name || "");
   const [contact, setContact] = useState(client.contact || "");
   const [notes, setNotes] = useState(client.notes || "");
@@ -166,12 +197,17 @@ const SearchWrap = styled.div`
 const Avatar = styled.div`
   width: 40px;
   height: 40px;
-  border-radius: 16px;
+  border-radius: ${({ theme }) => theme.radius.sm};
   display: grid;
   place-items: center;
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.surface2};
+  background: ${({ theme }) => theme.colors.accent};
   flex-shrink: 0;
+  
+  font-weight: 700;
+  font-size: 14px;
+  color: #ffffff;
+  letter-spacing: -0.5px;
 `;
 
 const Notes = styled.div`

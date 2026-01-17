@@ -16,3 +16,14 @@ export function daysUntil(dateStr) {
   const diff = target.getTime() - new Date(today.toDateString()).getTime();
   return Math.round(diff / (1000 * 60 * 60 * 24));
 }
+
+export function getInitials(name) {
+  if (!name) return "";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) {
+    return parts[0].substring(0, 2).toUpperCase();
+  }
+  const first = parts[0];
+  const last = parts[parts.length - 1];
+  return (first[0] + last[0]).toUpperCase();
+}

@@ -1,11 +1,13 @@
+import Logo from "../assets/Freela Logo.PNG";
+
 export const defaultSettings = {
   currency: "BRL", // BRL | USD | EUR
-  monthlyGoal: 6000, // meta mensal
+  monthlyGoal: 10000, // meta mensal
   cashflowDefaultMode: "weekly", // weekly | monthly
-  appName: "Painel Freela",
-  appDescription: "Seu painel de controle para freelancers",
-  accent: "#111111", // hex (ex: #ff0055)
-  logoUrl: "", // url de imagem para logo (opcional)
+  appName: "Flowyhub",
+  appDescription: "Seu painel de controle para Freelas",
+  accent: "#0b0b0b", // hex (ex: #ff0055)
+  logoUrl: Logo, // url de imagem para logo (opcional)
   mode: "dark", // dark | light
 };
 
