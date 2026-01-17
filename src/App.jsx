@@ -316,7 +316,7 @@ export default function App() {
         </Routes>
       </PrivacyContext.Provider>
       <Analytics />
-      <ToastContainer position="bottom-right" theme={mode} />
+      <ToastContainer position="top-right" theme={mode} />
     </ThemeProvider>
   );
 }

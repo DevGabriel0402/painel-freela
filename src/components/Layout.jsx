@@ -61,10 +61,24 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
   /* const [showPermToast, setShowPermToast] = useState(false); */
   const prevSettingsPerm = usePrevious(permissions?.settings);
 
-  // Detect permission change false -> true
+  // Detect permission change
   useEffect(() => {
+    // Log state transitions
+    console.log("PERM CHECK:", {
+      prev: prevSettingsPerm,
+      curr: permissions?.settings,
+      isAdmin: permissions?.admin
+    });
+
+    // False -> True (Liberado)
     if (prevSettingsPerm === false && permissions?.settings === true) {
       toast.success("Acesso Liberado: O administrador liberou o acesso às Configurações.");
+    }
+    // True -> False (Bloqueado)
+    // Note: Treating 'undefined' as true for the 'prev' state if we assume default is allowed, 
+    // but better to stick to strict check first.
+    if (prevSettingsPerm === true && permissions?.settings === false) {
+      toast.error("Acesso Bloqueado: O administrador removeu o acesso às Configurações.");
     }
   }, [permissions?.settings, prevSettingsPerm]);
 
