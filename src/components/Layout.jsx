@@ -107,9 +107,11 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
               >
                 <item.icon size={18} />
                 {!collapsed ? <span>{item.label}</span> : null}
-                {locked && !collapsed && <Lock size={14} style={{ marginLeft: 'auto' }} />}
+                {locked && !collapsed && (
+                  <Lock size={14} style={{ marginLeft: "auto" }} />
+                )}
               </NavItem>
-            )
+            );
           })}
 
           {isAdmin && (
@@ -191,11 +193,11 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
           if (isAdmin) {
             // Inserir Admin no meio (index 2)
             items.splice(2, 0, {
-              key: 'admin',
-              label: 'Admin',
-              path: '/admin',
+              key: "admin",
+              label: "Admin",
+              path: "/admin",
               icon: Shield,
-              isSpecial: true
+              isSpecial: true,
             });
           }
 
@@ -220,19 +222,23 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
                   }
                 }}
               >
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: "relative" }}>
                   <item.icon size={item.isSpecial ? 24 : 20} className="icon-main" />
                   {locked && (
-                    <div style={{
-                      position: 'absolute',
-                      right: -6, top: -6,
-                      background: 'white',
-                      borderRadius: '50%',
-                      display: 'grid',
-                      placeItems: 'center',
-                      width: 14, height: 14,
-                      border: '1px solid #ccc'
-                    }}>
+                    <div
+                      style={{
+                        position: "absolute",
+                        right: -6,
+                        top: -6,
+                        background: "white",
+                        borderRadius: "50%",
+                        display: "grid",
+                        placeItems: "center",
+                        width: 14,
+                        height: 14,
+                        border: "1px solid #ccc",
+                      }}
+                    >
                       <Lock size={10} color="black" />
                     </div>
                   )}
@@ -329,7 +335,7 @@ const NavItem = styled(NavLink)`
   justify-content: ${({ $collapsed }) => ($collapsed ? "center" : "flex-start")};
 
   border-radius: ${({ theme }) => theme.radius.sm};
-  border: 1px solid transparent; 
+  border: 1px solid transparent;
   background: transparent;
   /* Cor base dos ícones/texto: Muted adapta (cinza claro no dark, cinza escuro no light) */
   color: ${({ theme }) => theme.colors.muted};
@@ -343,16 +349,17 @@ const NavItem = styled(NavLink)`
     /* Active no Desktop: Usa a cor de texto padrão (Branco no Dark, Preto no Light) ou Accent? 
        O usuário pediu "de acordo com o modo", então cor de texto forte é mais seguro que accent se o accent for fixo. 
        Mas theme.colors.accent adapta? Sim. Vou usar theme.colors.text para garantir contraste máximo. */
-    color: ${({ theme }) => theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
+    color: ${({ theme }) =>
+      theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
     border: 1px solid ${({ theme }) => theme.colors.border};
-    border-right-color: ${({ theme }) => theme.colors.bg}; 
-    
-    margin-right: -15px; 
+    border-right-color: ${({ theme }) => theme.colors.bg};
+
+    margin-right: -15px;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     z-index: 5;
-    
-    box-shadow: -4px 4px 12px rgba(0,0,0,0.03);
+
+    box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.03);
   }
 
   ${({ $locked }) =>
@@ -375,15 +382,17 @@ const NavItem = styled(NavLink)`
   }
 
   &:hover {
-    ${({ $locked }) => !$locked && `
+    ${({ $locked }) =>
+      !$locked &&
+      `
         background: ${({ theme }) => theme.colors.surface2};
         color: ${({ theme }) => theme.colors.text};
     `}
   }
-  
+
   &.active:hover {
-     background: ${({ theme }) => theme.colors.bg};
-     color: ${({ theme }) => theme.colors.text};
+    background: ${({ theme }) => theme.colors.bg};
+    color: ${({ theme }) => theme.colors.text};
   }
 `;
 
@@ -514,7 +523,7 @@ const Content = styled.div`
 
 const MobileNav = styled.nav`
   position: fixed;
-  bottom: 0px; 
+  bottom: 0px;
   left: 0;
   right: 0;
   z-index: 99;
@@ -527,10 +536,13 @@ const MobileNav = styled.nav`
   gap: 6px;
   padding: 12px 10px 24px 10px; /* Mais padding embaixo pra safe area do iOS */
 
-  border-top: 1px solid ${({ theme }) => theme.mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'};
-  background: ${({ theme }) => theme.mode === 'dark' ? 'rgba(18, 18, 20, 0.85)' : 'rgba(255, 255, 255, 0.85)'};
+  border-top: 1px solid
+    ${({ theme }) =>
+      theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"};
+  background: ${({ theme }) =>
+    theme.mode === "dark" ? "rgba(18, 18, 20, 0.85)" : "rgba(255, 255, 255, 0.85)"};
   backdrop-filter: blur(16px);
-  
+
   @media (max-width: 920px) {
     display: grid;
   }
@@ -547,7 +559,8 @@ const MobileItem = styled(NavLink)`
   border: 1px solid transparent;
   background: transparent;
   // Dark: Brancos (com transp), Light: Pretos (com transp)
-  color: ${({ theme }) => theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
+  color: ${({ theme }) =>
+    theme.mode === "dark" ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.5)"};
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -559,10 +572,10 @@ const MobileItem = styled(NavLink)`
 
   &.active {
     // Dark: Branco total, Light: Preto total
-    color: ${({ theme }) => theme.mode === 'dark' ? '#ffffff' : '#000000'};
-    background: transparent; 
+    color: ${({ theme }) => (theme.mode === "dark" ? "#ffffff" : "#000000")};
+    background: transparent;
     font-weight: 700;
-    
+
     small {
       font-weight: 700;
     }
@@ -584,7 +597,7 @@ const MobileItem = styled(NavLink)`
     color: #000 !important; /* Texto preto sempre */
     border-radius: 22px;
     transform: translateY(-20px); 
-    box-shadow: 0 6px 16px rgba(255, 214, 0, 0.45);
+   
     height: 64px;
     width: 64px;
     margin: 0 auto; 
@@ -610,11 +623,11 @@ const MobileItem = styled(NavLink)`
 
   &:hover {
     ${({ $locked, $special, theme }) =>
-    !$locked &&
-    !$special &&
-    `
+      !$locked &&
+      !$special &&
+      `
       // Hover tbm se adapta
-      color: ${theme.mode === 'dark' ? '#ffffff' : '#000000'};
+      color: ${theme.mode === "dark" ? "#ffffff" : "#000000"};
     `}
   }
 `;
