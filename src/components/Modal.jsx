@@ -31,9 +31,8 @@ export default function Modal({ open, title, subtitle, onClose, children }) {
 const Backdrop = styled.div`
   position: fixed;
   inset: 0;
-  background: ${({ theme }) =>
-    theme.mode === "dark" ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0.35)"};
-  backdrop-filter: blur(10px);
+  background: ${({ theme }) => theme.colors.overlay};
+  backdrop-filter: blur(4px);
   display: grid;
   place-items: center;
   z-index: 999;
@@ -44,7 +43,7 @@ const Dialog = styled.div`
   width: min(720px, 100%);
   border-radius: ${({ theme }) => theme.radius.xl};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.surface2};
+  background: ${({ theme }) => theme.colors.panel};
   box-shadow: ${({ theme }) => theme.shadow.soft};
   overflow: hidden;
 `;

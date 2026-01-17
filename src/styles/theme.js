@@ -54,6 +54,10 @@ export function makeTheme({ mode = "dark", accent = "#111111" } = {}) {
     accent: accentHex,
     colors: {
       bg: dark ? "#0b0b0c" : "#f5f5f7",
+      // Solid surfaces for panels/modals to ensure readability
+      panel: dark ? "#151516" : "#ffffff",
+      overlay: dark ? "rgba(0,0,0,0.75)" : "rgba(0,0,0,0.4)",
+
       surface: dark ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.92)",
       surface2: dark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.04)",
       border: dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)",

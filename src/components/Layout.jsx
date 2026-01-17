@@ -16,6 +16,7 @@ import {
   Lock,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import CookieConsent from "./CookieConsent";
 import { useLocalStorage } from "../app/useLocalStorage";
 import { usePrivacy } from "../app/privacy";
 import { logout } from "../app/auth";
@@ -85,7 +86,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
         </Brand>
 
         <Nav>
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter((i) => i.key !== "settings").map((item) => {
             const locked = isLocked(perms, item.key);
             const active = location.pathname.startsWith(item.path);
 
@@ -128,6 +129,40 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
           )}
         </Nav>
 
+        <div style={{ flex: 1 }} />
+
+        {/* Settings at Bottom */}
+        <Nav style={{ marginTop: 0, marginBottom: 10 }}>
+          {NAV_ITEMS.filter((i) => i.key === "settings").map((item) => {
+            const locked = isLocked(perms, item.key);
+            const active = location.pathname.startsWith(item.path);
+
+            return (
+              <NavItem
+                key={item.key}
+                as={locked ? "button" : NavLink}
+                to={locked ? undefined : item.path}
+                $collapsed={collapsed}
+                $locked={locked}
+                $active={active && !locked}
+                className={active && !locked ? "active" : ""}
+                onClick={(e) => {
+                  if (locked) {
+                    e.preventDefault();
+                    navigate(`/locked?to=${encodeURIComponent(item.path)}`);
+                  }
+                }}
+              >
+                <item.icon size={18} />
+                {!collapsed ? <span>{item.label}</span> : null}
+                {locked && !collapsed && (
+                  <Lock size={14} style={{ marginLeft: "auto" }} />
+                )}
+              </NavItem>
+            );
+          })}
+        </Nav>
+
         <SideFooter $collapsed={collapsed}>
           <FooterActions $collapsed={collapsed}>
             <FooterBtn
@@ -141,7 +176,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
             </FooterBtn>
           </FooterActions>
 
-          {!collapsed ? <Hint>Dados salvos neste navegador.</Hint> : null}
+          {!collapsed ? <Hint>Flowyhub - v1.0</Hint> : null}
         </SideFooter>
       </Sidebar>
 
@@ -249,6 +284,8 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
           });
         })()}
       </MobileNav>
+
+      <CookieConsent />
     </Shell>
   );
 }
@@ -273,6 +310,10 @@ const Sidebar = styled.aside`
   width: ${({ $collapsed }) => ($collapsed ? "92px" : "320px")};
   transition: width 220ms ease;
   padding: 14px;
+
+  display: flex;
+  flex-direction: column;
+
   border-right: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.surface};
   backdrop-filter: blur(14px);
@@ -397,7 +438,7 @@ const NavItem = styled(NavLink)`
 `;
 
 const SideFooter = styled.div`
-  margin-top: auto;
+  /* margin-top: auto; -- Removed in favor of flex spacer above Settings */
   padding: ${({ $collapsed }) => ($collapsed ? "10px 0" : "14px 6px")};
   display: grid;
   align-items: center;
@@ -442,6 +483,7 @@ const Hint = styled.div`
   margin-top: 2px;
   font-size: 12px;
   color: ${({ theme }) => theme.colors.muted};
+  text-align: center;
 `;
 
 const Main = styled.main`
