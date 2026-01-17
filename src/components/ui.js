@@ -88,6 +88,10 @@ export const Input = styled.input`
     -webkit-appearance: auto;
     min-height: 44px;
     display: block;
+   
+    width: 100%;
+    min-width: 250px;
+    box-sizing: border-box;
     color: ${({ theme }) => theme.colors.text};
     
     /* Ensure text aligns correctly on iOS */
