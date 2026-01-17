@@ -13,11 +13,14 @@ import {
   EyeOff,
   LogOut,
   Shield,
+  Lock,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../app/useLocalStorage";
 import { usePrivacy } from "../app/privacy";
 import { logout } from "../app/auth";
+import { NAV_ITEMS } from "../app/navItems";
+import { isLocked } from "../app/permissions";
 
 export default function Layout({ children, mode, onToggleMode, settings, permissions }) {
   const [collapsed, setCollapsed] = useLocalStorage("sidebar_collapsed_v1", false);
@@ -29,17 +32,12 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
   const appDescription = settings?.appDescription || "LocalStorage • MVP";
   const logoUrl = (settings?.logoUrl || "").trim();
 
-  // Definição clara de permissões
-  const perms = {
-    dashboard: permissions?.dashboard !== false,
-    jobs: permissions?.jobs !== false,
-    clientes: permissions?.clientes !== false,
-    settings: permissions?.settings !== false,
-    admin: Boolean(permissions?.admin),
-  };
+  // Permissões
+  const perms = permissions || {};
+  const isAdmin = perms.admin;
 
-  // Cálculo dinâmico de quantos itens serão exibidos no menu
-  const visibleItemsCount = Object.values(perms).filter(Boolean).length;
+  // Quantos itens no mobile? (NAV_ITEMS + Admin se houver)
+  const count = NAV_ITEMS.length + (isAdmin ? 1 : 0);
 
   const title = location.pathname.startsWith("/dashboard")
     ? "Dashboard"
@@ -51,7 +49,9 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
           ? "Configurações"
           : location.pathname.startsWith("/admin")
             ? "Administração"
-            : "Painel";
+            : location.pathname.startsWith("/locked")
+              ? "Acesso Negado"
+              : "Painel";
 
   async function handleLogout() {
     await logout();
@@ -85,36 +85,41 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
         </Brand>
 
         <Nav>
-          {perms.dashboard && (
-            <NavItem to="/dashboard" title="Dashboard" $collapsed={collapsed}>
-              <ChartNoAxesCombined size={18} />
-              {!collapsed ? <span>Dashboard</span> : null}
-            </NavItem>
-          )}
+          {NAV_ITEMS.map((item) => {
+            const locked = isLocked(perms, item.key);
+            const active = location.pathname.startsWith(item.path);
 
-          {perms.jobs && (
-            <NavItem to="/jobs" title="Jobs" $collapsed={collapsed}>
-              <Briefcase size={18} />
-              {!collapsed ? <span>Jobs</span> : null}
-            </NavItem>
-          )}
+            return (
+              <NavItem
+                key={item.key}
+                as={locked ? "button" : NavLink}
+                to={locked ? undefined : item.path}
+                $collapsed={collapsed}
+                $locked={locked}
+                $active={active && !locked}
+                className={active && !locked ? "active" : ""}
+                onClick={(e) => {
+                  if (locked) {
+                    e.preventDefault();
+                    navigate(`/locked?to=${encodeURIComponent(item.path)}`);
+                  }
+                }}
+              >
+                <item.icon size={18} />
+                {!collapsed ? <span>{item.label}</span> : null}
+                {locked && !collapsed && <Lock size={14} style={{ marginLeft: 'auto' }} />}
+              </NavItem>
+            )
+          })}
 
-          {perms.clientes && (
-            <NavItem to="/clientes" title="Clientes" $collapsed={collapsed}>
-              <Users size={18} />
-              {!collapsed ? <span>Clientes</span> : null}
-            </NavItem>
-          )}
-
-          {perms.settings && (
-            <NavItem to="/settings" title="Configurações" $collapsed={collapsed}>
-              <Settings size={18} />
-              {!collapsed ? <span>Configurações</span> : null}
-            </NavItem>
-          )}
-
-          {perms.admin && (
-            <NavItem to="/admin" title="Administração" $collapsed={collapsed}>
+          {isAdmin && (
+            <NavItem
+              as={NavLink}
+              to="/admin"
+              title="Administração"
+              $collapsed={collapsed}
+              className={location.pathname.startsWith("/admin") ? "active" : ""}
+            >
               <Shield size={18} />
               {!collapsed ? <span>Administração</span> : null}
             </NavItem>
@@ -180,38 +185,49 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
         <Content>{children}</Content>
       </Main>
 
-      {/* AQUI ESTÁ A CORREÇÃO: Passando o count para o CSS */}
-      <MobileNav $count={visibleItemsCount}>
-        {perms.dashboard && (
-          <MobileItem to="/dashboard">
-            <ChartNoAxesCombined size={20} />
-            <small>Dash</small>
-          </MobileItem>
-        )}
+      <MobileNav $count={count}>
+        {NAV_ITEMS.map((item) => {
+          const locked = isLocked(perms, item.key);
+          const active = location.pathname.startsWith(item.path);
 
-        {perms.jobs && (
-          <MobileItem to="/jobs">
-            <Briefcase size={20} />
-            <small>Jobs</small>
-          </MobileItem>
-        )}
+          return (
+            <MobileItem
+              key={item.key}
+              as={locked ? "button" : NavLink}
+              to={locked ? undefined : item.path}
+              $locked={locked}
+              className={active && !locked ? "active" : ""}
+              onClick={(e) => {
+                if (locked) {
+                  e.preventDefault();
+                  navigate(`/locked?to=${encodeURIComponent(item.path)}`);
+                }
+              }}
+            >
+              <div style={{ position: 'relative' }}>
+                <item.icon size={20} />
+                {locked && (
+                  <div style={{
+                    position: 'absolute',
+                    right: -6, top: -6,
+                    background: 'white',
+                    borderRadius: '50%',
+                    display: 'grid',
+                    placeItems: 'center',
+                    width: 14, height: 14,
+                    border: '1px solid #ccc'
+                  }}>
+                    <Lock size={10} color="black" />
+                  </div>
+                )}
+              </div>
+              <small>{item.label.slice(0, 4)}</small>
+            </MobileItem>
+          )
+        })}
 
-        {perms.clientes && (
-          <MobileItem to="/clientes">
-            <Users size={20} />
-            <small>Clientes</small>
-          </MobileItem>
-        )}
-
-        {perms.settings && (
-          <MobileItem to="/settings">
-            <Settings size={20} />
-            <small>Config</small>
-          </MobileItem>
-        )}
-
-        {perms.admin && (
-          <MobileItem to="/admin">
+        {isAdmin && (
+          <MobileItem as={NavLink} to="/admin" className={location.pathname.startsWith("/admin") ? "active" : ""}>
             <Shield size={20} />
             <small>Admin</small>
           </MobileItem>
@@ -316,16 +332,29 @@ const NavItem = styled(NavLink)`
     background: ${({ theme }) => theme.colors.accentSoft};
   }
 
+  ${({ $locked }) =>
+    $locked &&
+    `
+    opacity: 0.6;
+    cursor: default; 
+    border-style: dashed;
+    &:hover { transform: none; filter: none; border-color: inherit; }
+  `}
+
   span {
     font-weight: 700;
   }
 
   &:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.03);
+    ${({ $locked }) => !$locked && `
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    `}
   }
   &:active {
-    transform: translateY(0px);
+    ${({ $locked }) => !$locked && `
+        transform: translateY(0px);
+    `}
   }
 `;
 
@@ -502,8 +531,16 @@ const MobileItem = styled(NavLink)`
     background: ${({ theme }) => theme.colors.accentSoft};
   }
 
+  ${({ $locked }) =>
+    $locked &&
+    `
+    opacity: 0.6;
+    border-style: dashed;
+    cursor: default;
+  `}
+
   &:hover {
-    filter: brightness(1.05);
+    ${({ $locked }) => !$locked && `filter: brightness(1.05);`}
   }
 `;
 

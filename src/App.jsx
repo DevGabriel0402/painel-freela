@@ -7,17 +7,18 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
+import Locked from "./pages/Locked"; // Import Locked Page
 
 import Jobs from "./pages/Jobs";
 import Settings from "./pages/Settings";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { uid } from "./app/storage";
 import { useLocalStorage } from "./app/useLocalStorage";
 import { defaultSettings, mergeSettings, clampHex } from "./app/defaultSettings";
 import { makeTheme } from "./styles/theme";
 import { PrivacyContext } from "./app/privacy";
 import { useAuth } from "./app/auth";
 import { isAdminUser } from "./app/admin";
+import RouteGuard from "./components/RouteGuard"; // Import RouteGuard
 import {
   subscribeData,
   addClientFS,
@@ -31,6 +32,8 @@ import {
 } from "./app/firestore";
 import { logout } from "./app/auth";
 
+// --- Route Protectors ---
+
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -43,35 +46,34 @@ function PrivateRoute({ children }) {
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
-  const location = useLocation();
-
   if (loading) return <div>Carregando...</div>;
-  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!user) return <Navigate to="/login" replace />;
   if (!isAdminUser(user)) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
-function PermissionRoute({ allow, fallback = "/dashboard", children }) {
-  if (!allow) return <Navigate to={fallback} replace />;
-  return children;
-}
+// --- Main App Component ---
 
 export default function App() {
   const { user, loading } = useAuth();
-  // Estado único para dados vindos do Firestore
-  const [data, setData] = useState({ clients: [], jobs: [], settings: null, profile: null });
+  const [data, setData] = useState({
+    clients: [],
+    jobs: [],
+    settings: null,
+    profile: null,
+  });
   const [blockedMsg, setBlockedMsg] = useState("");
 
-  // Garante que o perfil existe (inclusive login Google)
+  // Garante que o perfil existe no Firestore
   useEffect(() => {
     if (!user) return;
     createUserProfile(user.uid, {
       email: user.email || "",
       displayName: user.displayName || "",
-    }).catch(() => {});
+    }).catch(() => { });
   }, [user]);
 
-  // Sync com Firestore quando usuário estiver logado
+  // Sync em tempo real com Firestore
   useEffect(() => {
     if (!user) {
       setData({ clients: [], jobs: [], settings: null, profile: null });
@@ -84,60 +86,60 @@ export default function App() {
     return () => unsub();
   }, [user]);
 
-  // Se o admin desativar o usuário, bloqueia e faz logout
+  // Bloqueio de usuário desativado
   useEffect(() => {
-    if (!user) return;
-    if (data?.profile?.disabled) {
+    if (user && data?.profile?.disabled) {
       setBlockedMsg("Seu acesso foi desativado pelo administrador.");
-      logout().catch(() => {});
+      logout().catch(() => { });
     }
   }, [user, data?.profile?.disabled]);
 
-  // Tema UI (Dark/Light) e Privacidade podem continuar locais (por dispositivo)
+  // UI Local States
   const [mode, setMode] = useLocalStorage("ui_mode_v1", "dark");
   const [privacyOn, setPrivacyOn] = useLocalStorage("ui_privacy_v1", false);
 
-  // Settings de Negócio (Nome do App, Cor, etc) agora vêm do Firestore
-  // Se não vier nada do banco (null), usa default
+  // Settings de Negócio
   const settings = useMemo(() => {
     return mergeSettings(data.settings || defaultSettings);
   }, [data.settings]);
 
+  // --- CORREÇÃO: Centralização das Permissões ---
+  // Este objeto controla tanto o Layout (menu) quanto as Rotas
   const permissions = useMemo(() => {
     const p = data?.profile?.permissions || {};
+    const isAdmin = isAdminUser(user);
+
     return {
       dashboard: p.dashboard !== false,
       jobs: p.jobs !== false,
       clientes: p.clientes !== false,
       settings: p.settings !== false,
-      admin: isAdminUser(user),
+      admin: isAdmin, // Apenas true se for admin real
     };
   }, [data?.profile?.permissions, user]);
 
-  // Sync mode from settings if available (Firestore wins over LocalStorage when changed)
+  // Sync mode (Firestore > LocalStorage)
   useEffect(() => {
     if (settings?.mode) {
       setMode(settings.mode);
     }
-  }, [settings?.mode]);
+  }, [settings?.mode, setMode]);
 
-  // aplica cor de destaque escolhida (hex) no tema inteiro
   const theme = useMemo(() => {
     return makeTheme({ mode, accent: clampHex(settings.accent) });
   }, [mode, settings.accent]);
 
+  // --- Handlers ---
+
   function toggleMode() {
     const nextMode = mode === "light" ? "dark" : "light";
     setMode(nextMode);
-
-    // Se estiver logado, salva preferência no Firestore
     if (user && data.settings) {
       saveSettingsFS(user.uid, { mode: nextMode });
     }
   }
 
   function saveSettings(next) {
-    // Salva no Firestore em vez de LocalStorage
     if (user) {
       const toSave = mergeSettings({ ...next, accent: clampHex(next?.accent) });
       saveSettingsFS(user.uid, toSave);
@@ -148,22 +150,20 @@ export default function App() {
     setPrivacyOn((v) => !v);
   }
 
-  // Nome do painel = nome do site
+  // --- Document Effects ---
+
   useEffect(() => {
     const name = (settings?.appName || "Painel Freela").trim();
-    document.title = name || "Painel";
+    document.title = name;
   }, [settings?.appName]);
 
-  // aplica classe no body para blur
   useEffect(() => {
     document.body.classList.toggle("privacy-on", Boolean(privacyOn));
   }, [privacyOn]);
 
-  // Logo (url) também vira favicon
   useEffect(() => {
     const url = (settings?.logoUrl || "").trim();
     if (!url) return;
-
     let link = document.querySelector('link[rel="icon"]');
     if (!link) {
       link = document.createElement("link");
@@ -173,43 +173,38 @@ export default function App() {
     link.setAttribute("href", url);
   }, [settings?.logoUrl]);
 
+  // --- Data Actions Wrappers ---
+
   const clients = data.clients || [];
   const jobs = data.jobs || [];
 
-  // Wrappers para chamar funções do Firestore passando o UID
-  function addClient(payload) {
-    if (user) addClientFS(user.uid, payload);
-  }
-  function removeClient(clientId) {
-    if (user) removeClientFS(user.uid, clientId);
-  }
-  function updateClient(clientId, patch) {
-    if (user) updateClientFS(user.uid, clientId, patch);
-  }
+  const addClient = (p) => user && addClientFS(user.uid, p);
+  const removeClient = (id) => user && removeClientFS(user.uid, id);
+  const updateClient = (id, patch) => user && updateClientFS(user.uid, id, patch);
+  const addJob = (p) => user && addJobFS(user.uid, p);
+  const removeJob = (id) => user && removeJobFS(user.uid, id);
+  const updateJob = (id, patch) => user && updateJobFS(user.uid, id, patch);
+  const updateStatus = (id, status) => user && updateJobFS(user.uid, id, { status });
 
-  function addJob(payload) {
-    if (user) addJobFS(user.uid, payload);
-  }
   function togglePaid(jobId) {
     if (!user) return;
     const job = jobs.find((j) => j.id === jobId);
     if (job) updateJobFS(user.uid, jobId, { paid: !job.paid });
   }
-  function updateStatus(jobId, status) {
-    if (user) updateJobFS(user.uid, jobId, { status });
-  }
-  function updateJob(jobId, patch) {
-    if (user) updateJobFS(user.uid, jobId, patch);
-  }
-  function removeJob(jobId) {
-    if (user) removeJobFS(user.uid, jobId);
-  }
 
-  if (loading) return null; // Evita flash de conteúdo
+  if (loading) return null;
 
   if (blockedMsg) {
     return (
-      <div style={{ padding: 24, maxWidth: 520, margin: "40px auto", fontFamily: "system-ui" }}>
+      <div
+        style={{
+          padding: 24,
+          maxWidth: 520,
+          margin: "40px auto",
+          fontFamily: "system-ui",
+          textAlign: "center",
+        }}
+      >
         <h2 style={{ marginBottom: 8 }}>Acesso desativado</h2>
         <p style={{ opacity: 0.85 }}>{blockedMsg}</p>
         <p style={{ opacity: 0.7, fontSize: 13, marginTop: 12 }}>
@@ -239,31 +234,35 @@ export default function App() {
                 >
                   <Routes>
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="/locked" element={<Locked />} />
+
                     <Route
                       path="/dashboard"
                       element={
-                        <PermissionRoute allow={permissions.dashboard}>
+                        <RouteGuard allow={permissions.dashboard}>
                           <Dashboard jobs={jobs} clients={clients} settings={settings} />
-                        </PermissionRoute>
+                        </RouteGuard>
                       }
                     />
+
                     <Route
                       path="/clientes"
                       element={
-                        <PermissionRoute allow={permissions.clientes}>
+                        <RouteGuard allow={permissions.clientes}>
                           <Clientes
                             clients={clients}
                             onAddClient={addClient}
                             onRemoveClient={removeClient}
                             onUpdateClient={updateClient}
                           />
-                        </PermissionRoute>
+                        </RouteGuard>
                       }
                     />
+
                     <Route
                       path="/jobs"
                       element={
-                        <PermissionRoute allow={permissions.jobs}>
+                        <RouteGuard allow={permissions.jobs}>
                           <Jobs
                             clients={clients}
                             jobs={jobs}
@@ -274,20 +273,21 @@ export default function App() {
                             onUpdateJob={updateJob}
                             settings={settings}
                           />
-                        </PermissionRoute>
+                        </RouteGuard>
                       }
                     />
+
                     <Route
                       path="/settings"
                       element={
-                        <PermissionRoute allow={permissions.settings}>
+                        <RouteGuard allow={permissions.settings}>
                           <Settings
                             settings={settings}
                             onSave={saveSettings}
                             mode={mode}
                             onToggleMode={toggleMode}
                           />
-                        </PermissionRoute>
+                        </RouteGuard>
                       }
                     />
 
@@ -299,6 +299,7 @@ export default function App() {
                         </AdminRoute>
                       }
                     />
+
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </Layout>
