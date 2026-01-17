@@ -612,7 +612,7 @@ const MobileItem = styled(NavLink)`
     
     &:hover {
       transform: translateY(-22px) scale(1.05);
-      box-shadow: 0 10px 24px rgba(255, 214, 0, 0.55);
+  
     }
     
     &.active {
