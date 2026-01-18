@@ -36,6 +36,7 @@ import {
   createUserProfile,
 } from "./app/firestore";
 import { logout } from "./app/auth";
+import LoadingScreen from "./components/LoadingScreen";
 
 // --- Route Protectors ---
 
@@ -43,7 +44,7 @@ function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
 
   return children;
@@ -51,7 +52,7 @@ function PrivateRoute({ children }) {
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   if (!isAdminUser(user)) return <Navigate to="/dashboard" replace />;
   return children;
@@ -209,7 +210,14 @@ export default function App() {
     if (job) updateJobFS(user.uid, jobId, { paid: !job.paid });
   }
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <LoadingScreen />
+      </ThemeProvider>
+    );
+  }
 
   if (blockedMsg) {
     return (

@@ -15,7 +15,7 @@ export default function Dashboard({ jobs, clients, settings }) {
       {/* Relatório do mês (com export) */}
       <MonthlyReport jobs={jobs} clients={clients} />
 
-      <RevenueLineChart jobs={jobs} />
+      <RevenueLineChart jobs={jobs} defaultMode={settings?.revenueChartMode} />
 
       {/* Fluxo de caixa */}
       <CashflowForecastChart

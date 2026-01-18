@@ -265,16 +265,16 @@ export default function MonthlyReport({ jobs, clients }) {
           ) : (
             <Stack $gap="10px">
               {jobsDoMes.slice(0, 8).map((j) => (
-                <Row key={j.id} $between>
-                  <div style={{ minWidth: 0 }}>
+                <JobRow key={j.id}>
+                  <JobInfo>
                     <Ellipsis style={{ fontWeight: 800 }}>{j.title}</Ellipsis>
                     <Small data-sensitive="true">
                       {clientById.get(j.clientId)?.name || "—"} • Venc:{" "}
                       {formatDateBR(j.dueDate)} • {formatBRL(j.value)}
                     </Small>
-                  </div>
+                  </JobInfo>
                   <Pill>{j.paid ? "pago" : "pendente"}</Pill>
-                </Row>
+                </JobRow>
               ))}
 
               {jobsDoMes.length > 8 ? (
@@ -322,10 +322,15 @@ const DividerLine = styled.div`
       `;
 
 const Small = styled.div`
-      margin-top: 3px;
-      font-size: 12px;
-      color: ${({ theme }) => theme.colors.muted};
-      `;
+  margin-top: 3px;
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.muted};
+  max-width: 300px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
 
 const Muted = styled.div`
       font-size: 13px;
@@ -338,3 +343,26 @@ const Ellipsis = styled.div`
       text-overflow: ellipsis;
       white-space: nowrap;
       `;
+
+const JobRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+
+  @media (max-width: 600px) {
+    flex-wrap: wrap;
+  }
+`;
+
+const JobInfo = styled.div`
+  min-width: 0;
+  flex: 1;
+  padding-right: 8px;
+  max-width: 220px; /* Limit on desktop to ensure pill fits */
+
+  @media (max-width: 400px) {
+    max-width: 200px;
+  }
+`;

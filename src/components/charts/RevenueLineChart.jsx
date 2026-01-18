@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import styled, { useTheme } from "styled-components";
 import { Card, CardTitle, Row } from "../ui";
@@ -8,10 +8,38 @@ import {
   getDailyRevenue
 } from "../../app/analytics";
 import { TrendingUp } from "lucide-react";
+import { auth } from "../../app/firebase";
+import { saveSettingsFS } from "../../app/firestore";
 
-export default function RevenueLineChart({ jobs }) {
+export default function RevenueLineChart({ jobs, defaultMode }) {
   const theme = useTheme();
-  const [range, setRange] = useState("monthly"); // monthly, weekly, daily
+
+  // Initialize from localStorage -> defaultMode -> "monthly"
+  const [range, setRangeState] = useState(() => {
+    const saved = localStorage.getItem("revenue_chart_mode");
+    if (saved && ["monthly", "weekly", "daily"].includes(saved)) {
+      return saved;
+    }
+    return defaultMode || "monthly";
+  });
+
+  // Wrapper to save state
+  function setRange(mode) {
+    setRangeState(mode);
+    localStorage.setItem("revenue_chart_mode", mode);
+
+    // Save to Firestore if logged in
+    if (auth.currentUser) {
+      saveSettingsFS(auth.currentUser.uid, { revenueChartMode: mode });
+    }
+  }
+
+  // Sync if defaultMode changes and we have nothing valid in storage (optional, mostly for first load sync)
+  useEffect(() => {
+    if (defaultMode && !localStorage.getItem("revenue_chart_mode")) {
+      setRangeState(defaultMode);
+    }
+  }, [defaultMode]);
 
   const data = useMemo(() => {
     if (range === "weekly") return getWeeklyRevenue(jobs);
