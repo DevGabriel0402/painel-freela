@@ -304,7 +304,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
                 }}
               >
                 <div style={{ position: "relative" }}>
-                  <item.icon size={item.isSpecial ? 24 : 20} className="icon-main" />
+                  <item.icon size={item.isSpecial ? 42 : 26} className="icon-main" />
                   {locked && (
                     <div
                       style={{
@@ -685,22 +685,22 @@ const MobileItem = styled(NavLink)`
     background: #FFD600 !important; /* Amarelo forte */
     color: #000 !important; /* Texto preto sempre */
     border-radius: 22px;
-    transform: translateY(-20px); 
+    transform: translateY(-40px); 
    
-    height: 64px;
-    width: 64px;
+    height: 84px;
+    width: 84px;
     margin: 0 auto; 
-    border: 3px solid ${theme.colors.bg}; 
+    border: 4px solid ${theme.colors.bg}; 
     display: flex;
     justify-content: center;
     
     .icon-main {
-      width: 30px;
-      height: 30px;
+      width: 42px;
+      height: 42px;
     }
     
     &:hover {
-      transform: translateY(-22px) scale(1.05);
+      transform: translateY(-42px) scale(1.05);
   
     }
     
