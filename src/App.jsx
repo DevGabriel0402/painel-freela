@@ -9,7 +9,7 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import Locked from "./pages/Locked"; // Import Locked Page
 
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -37,6 +37,9 @@ import {
 } from "./app/firestore";
 import { logout } from "./app/auth";
 import LoadingScreen from "./components/LoadingScreen";
+import { syncPwaAssets } from "./app/pwa";
+
+const EMPTY_DATA = { clients: [], jobs: [], settings: null, profile: null };
 
 // --- Route Protectors ---
 
@@ -68,7 +71,15 @@ export default function App() {
     settings: null,
     profile: null,
   });
-  const [blockedMsg, setBlockedMsg] = useState("");
+
+  const effectiveData = user ? data : EMPTY_DATA;
+
+  let blockedMsg = "";
+  try {
+    blockedMsg = !user ? window.sessionStorage.getItem("blockedMsg") || "" : "";
+  } catch {
+    blockedMsg = "";
+  }
 
   // Garante que o perfil existe no Firestore
   useEffect(() => {
@@ -76,16 +87,12 @@ export default function App() {
     createUserProfile(user.uid, {
       email: user.email || "",
       displayName: user.displayName || "",
-    }).catch(() => { });
+    }).catch(() => {});
   }, [user]);
 
   // Sync em tempo real com Firestore
   useEffect(() => {
-    if (!user) {
-      setData({ clients: [], jobs: [], settings: null, profile: null });
-      setBlockedMsg("");
-      return;
-    }
+    if (!user) return;
     const unsub = subscribeData(user.uid, (newData) => {
       setData(newData);
     });
@@ -95,10 +102,26 @@ export default function App() {
   // Bloqueio de usuário desativado
   useEffect(() => {
     if (user && data?.profile?.disabled) {
-      setBlockedMsg("Seu acesso foi desativado pelo administrador.");
-      logout().catch(() => { });
+      try {
+        window.sessionStorage.setItem(
+          "blockedMsg",
+          "Seu acesso foi desativado pelo administrador.",
+        );
+      } catch {
+        // ignore
+      }
+      logout().catch(() => {});
     }
   }, [user, data?.profile?.disabled]);
+
+  useEffect(() => {
+    if (!user) return;
+    try {
+      window.sessionStorage.removeItem("blockedMsg");
+    } catch {
+      // ignore
+    }
+  }, [user]);
 
   // UI Local States
   const [mode, setMode] = useLocalStorage("ui_mode_v1", "dark");
@@ -106,23 +129,19 @@ export default function App() {
 
   // Settings de Negócio
   const settings = useMemo(() => {
-    return mergeSettings(data.settings || defaultSettings);
-  }, [data.settings]);
+    return mergeSettings(effectiveData.settings || defaultSettings);
+  }, [effectiveData.settings]);
 
   // --- CORREÇÃO: Centralização das Permissões ---
   // Este objeto controla tanto o Layout (menu) quanto as Rotas
-  const permissions = useMemo(() => {
-    const p = data?.profile?.permissions || {};
-    const isAdmin = isAdminUser(user);
-
-    return {
-      dashboard: p.dashboard !== false,
-      jobs: p.jobs !== false,
-      clientes: p.clientes !== false,
-      settings: p.settings !== false,
-      admin: isAdmin, // Apenas true se for admin real
-    };
-  }, [data?.profile?.permissions, user]);
+  const p = effectiveData?.profile?.permissions || {};
+  const permissions = {
+    dashboard: p.dashboard !== false,
+    jobs: p.jobs !== false,
+    clientes: p.clientes !== false,
+    settings: p.settings !== false,
+    admin: Boolean(user && isAdminUser(user)),
+  };
 
   // Sync mode (Firestore > LocalStorage)
   useEffect(() => {
@@ -140,7 +159,7 @@ export default function App() {
   function toggleMode() {
     const nextMode = mode === "light" ? "dark" : "light";
     setMode(nextMode);
-    if (user && data.settings) {
+    if (user && effectiveData.settings) {
       saveSettingsFS(user.uid, { mode: nextMode });
     }
   }
@@ -168,18 +187,6 @@ export default function App() {
   }, [privacyOn]);
 
   useEffect(() => {
-    const url = (settings?.logoUrl || "").trim();
-    if (!url) return;
-    let link = document.querySelector('link[rel="icon"]');
-    if (!link) {
-      link = document.createElement("link");
-      link.setAttribute("rel", "icon");
-      document.head.appendChild(link);
-    }
-    link.setAttribute("href", url);
-  }, [settings?.logoUrl]);
-
-  useEffect(() => {
     // Update mobile browser theme color
     const color = theme.colors.bg;
     let meta = document.querySelector("meta[name='theme-color']");
@@ -191,10 +198,17 @@ export default function App() {
     meta.content = color;
   }, [theme.colors.bg]);
 
+  useEffect(() => {
+    syncPwaAssets({
+      theme,
+      appName: (settings?.appName || "Flowyhub").trim() || "Flowyhub",
+    });
+  }, [settings?.appName, settings?.appDescription, theme]);
+
   // --- Data Actions Wrappers ---
 
-  const clients = data.clients || [];
-  const jobs = data.jobs || [];
+  const clients = effectiveData.clients || [];
+  const jobs = effectiveData.jobs || [];
 
   const addClient = (p) => user && addClientFS(user.uid, p);
   const removeClient = (id) => user && removeClientFS(user.uid, id);
@@ -302,7 +316,10 @@ export default function App() {
                       }
                     />
 
-                    <Route path="/feedback" element={<Feedback profile={data.profile} />} />
+                    <Route
+                      path="/feedback"
+                      element={<Feedback profile={data.profile} />}
+                    />
 
                     <Route
                       path="/settings"

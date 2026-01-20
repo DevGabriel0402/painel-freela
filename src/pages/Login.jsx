@@ -4,8 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginWithEmail, loginWithGoogle } from "../app/auth";
 import { createUserProfile } from "../app/firestore";
 import { Button } from "../components/ui";
-import Logo from "../assets/Freela Logo.PNG";
-import GoogleIcon from "../assets/google-icon.svg";
+// ...removido import do loader.svg...
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -41,7 +40,10 @@ export default function Login() {
       // Aqui usamos o retorno do popup quando disponível.
       const u = result?.user;
       if (u) {
-        await createUserProfile(u.uid, { email: u.email || "", displayName: u.displayName || "" });
+        await createUserProfile(u.uid, {
+          email: u.email || "",
+          displayName: u.displayName || "",
+        });
       }
       navigate("/dashboard");
     } catch (err) {
@@ -53,7 +55,7 @@ export default function Login() {
   return (
     <Container>
       <Card>
-        <img src={Logo} alt="Freela Logo" />
+        <img src="/icons/loader.svg" alt="Loader Icon" width={50} height={50} />
         <Subtitle>Acesse seu painel do Flowyhub</Subtitle>
 
         <Form onSubmit={handleSubmit}>
@@ -89,7 +91,7 @@ export default function Login() {
         <Divider>ou</Divider>
 
         <GoogleButton type="button" onClick={handleGoogle}>
-          <img src={GoogleIcon} alt="Google Icon" /> Continuar com Google
+          <img src="/icons/google-icon.svg" alt="Google Icon" /> Continuar com Google
         </GoogleButton>
 
         <FooterText>

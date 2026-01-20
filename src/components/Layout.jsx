@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import {
   Briefcase,
@@ -65,10 +65,12 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
   useEffect(() => {
     // False -> True (Liberado)
     if (prevSettingsPerm === false && permissions?.settings === true) {
-      toast.success("Acesso Liberado: O administrador liberou o acesso às Configurações.");
+      toast.success(
+        "Acesso Liberado: O administrador liberou o acesso às Configurações.",
+      );
     }
     // True -> False (Bloqueado)
-    // Note: Treating 'undefined' as true for the 'prev' state if we assume default is allowed, 
+    // Note: Treating 'undefined' as true for the 'prev' state if we assume default is allowed,
     // but better to stick to strict check first.
     if (prevSettingsPerm === true && permissions?.settings === false) {
       toast.error("Acesso Bloqueado: O administrador removeu o acesso às Configurações.");
@@ -258,7 +260,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
             style={{
               color:
                 mode === "dark" &&
-                  (!settings?.accent || settings?.accent === defaultSettings.accent)
+                (!settings?.accent || settings?.accent === defaultSettings.accent)
                   ? "#ffffff"
                   : undefined,
             }}
@@ -331,7 +333,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
       </MobileNav>
 
       <CookieConsent />
-    </Shell >
+    </Shell>
   );
 }
 
@@ -436,7 +438,7 @@ const NavItem = styled(NavLink)`
        O usuário pediu "de acordo com o modo", então cor de texto forte é mais seguro que accent se o accent for fixo. 
        Mas theme.colors.accent adapta? Sim. Vou usar theme.colors.text para garantir contraste máximo. */
     color: ${({ theme }) =>
-    theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
+      theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
     border: 1px solid ${({ theme }) => theme.colors.border};
     border-right-color: ${({ theme }) => theme.colors.bg};
 
@@ -469,8 +471,8 @@ const NavItem = styled(NavLink)`
 
   &:hover {
     ${({ $locked }) =>
-    !$locked &&
-    `
+      !$locked &&
+      `
         background: ${({ theme }) => theme.colors.surface2};
         color: ${({ theme }) => theme.colors.text};
     `}
@@ -537,7 +539,7 @@ const Main = styled.main`
   padding: 16px;
   background: ${({ theme }) => theme.colors.bg};
   min-height: 100vh;
-  
+
   display: flex;
   flex-direction: column;
 
@@ -627,7 +629,7 @@ const MobileNav = styled.nav`
 
   border-top: 1px solid
     ${({ theme }) =>
-    theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"};
+      theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"};
   background: ${({ theme }) =>
     theme.mode === "dark" ? "rgba(18, 18, 20, 0.85)" : "rgba(255, 255, 255, 0.85)"};
   backdrop-filter: blur(16px);
@@ -712,9 +714,9 @@ const MobileItem = styled(NavLink)`
 
   &:hover {
     ${({ $locked, $special, theme }) =>
-    !$locked &&
-    !$special &&
-    `
+      !$locked &&
+      !$special &&
+      `
       // Hover tbm se adapta
       color: ${theme.mode === "dark" ? "#ffffff" : "#000000"};
     `}
@@ -750,9 +752,9 @@ const SiteFooter = styled.footer`
 `;
 
 function usePrevious(value) {
-  const ref = useRef();
+  const [previous, setPrevious] = useState();
   useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
+    setPrevious(value);
+  }, [value]);
+  return previous;
 }
