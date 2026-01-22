@@ -3,7 +3,8 @@ import { SiFluxus } from "react-icons/si";
 
 export default function LoadingScreen() {
   const theme = useTheme();
-  const baseColor = theme.mode === "dark" ? theme.colors.surface2 : theme.colors.border;
+  // Cor oposta ao modo: Dark -> Branco, Light -> Preto
+  const baseColor = theme.mode === "dark" ? "#ffffff" : "#000000";
   const accentColor = theme.colors.accent;
   const haloColor =
     theme.mode === "dark" ? theme.colors.accentRing : theme.colors.accentSoft;
@@ -27,7 +28,8 @@ const fill = keyframes`
 const Container = styled.div`
   position: fixed;
   inset: 0;
-  background: ${({ theme }) => theme.colors.bg};
+  /* Background adapta ao tema: Dark -> escuro, Light -> claro */
+  background: ${({ theme }) => theme.mode === "dark" ? "#0a0a0c" : "#f8f9fa"};
   display: grid;
   place-items: center;
   z-index: 9999;

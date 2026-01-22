@@ -218,11 +218,10 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
                 ) : (
                   <LayoutGrid size={20} />
                 )}
-                {appName}
+                {appName ? getInitials(appName) : "Flowyhub"}
               </div>
             </MobileTitle>
           </TopTitle>
-
           <TopActions>
             <TopThemeBtn
               className="mobile-only"
@@ -260,7 +259,7 @@ export default function Layout({ children, mode, onToggleMode, settings, permiss
             style={{
               color:
                 mode === "dark" &&
-                (!settings?.accent || settings?.accent === defaultSettings.accent)
+                  (!settings?.accent || settings?.accent === defaultSettings.accent)
                   ? "#ffffff"
                   : undefined,
             }}
@@ -438,7 +437,7 @@ const NavItem = styled(NavLink)`
        O usuário pediu "de acordo com o modo", então cor de texto forte é mais seguro que accent se o accent for fixo. 
        Mas theme.colors.accent adapta? Sim. Vou usar theme.colors.text para garantir contraste máximo. */
     color: ${({ theme }) =>
-      theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
+    theme.colors.text}; // ou theme.colors.accent se preferir c/ cor
     border: 1px solid ${({ theme }) => theme.colors.border};
     border-right-color: ${({ theme }) => theme.colors.bg};
 
@@ -471,8 +470,8 @@ const NavItem = styled(NavLink)`
 
   &:hover {
     ${({ $locked }) =>
-      !$locked &&
-      `
+    !$locked &&
+    `
         background: ${({ theme }) => theme.colors.surface2};
         color: ${({ theme }) => theme.colors.text};
     `}
@@ -629,7 +628,7 @@ const MobileNav = styled.nav`
 
   border-top: 1px solid
     ${({ theme }) =>
-      theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"};
+    theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"};
   background: ${({ theme }) =>
     theme.mode === "dark" ? "rgba(18, 18, 20, 0.85)" : "rgba(255, 255, 255, 0.85)"};
   backdrop-filter: blur(16px);
@@ -714,9 +713,9 @@ const MobileItem = styled(NavLink)`
 
   &:hover {
     ${({ $locked, $special, theme }) =>
-      !$locked &&
-      !$special &&
-      `
+    !$locked &&
+    !$special &&
+    `
       // Hover tbm se adapta
       color: ${theme.mode === "dark" ? "#ffffff" : "#000000"};
     `}
@@ -751,10 +750,34 @@ const SiteFooter = styled.footer`
   }
 `;
 
+
 function usePrevious(value) {
   const [previous, setPrevious] = useState();
   useEffect(() => {
     setPrevious(value);
   }, [value]);
   return previous;
+}
+
+function getInitials(name) {
+  if (!name) return "";
+  const clean = name.trim();
+  // Se for muito curto (ex: "PC"), retorna ele mesmo
+  if (clean.length <= 3) return clean.toUpperCase();
+
+  // Pega as iniciais das palavras ignorando preposições comuns se quiser, 
+  // mas aqui vou pegar de todas as partes para ser consistente com "Painel de Clientes" -> "PDC" ou "PC"?
+  // O usuário disse: "Painel de Clientes" -> "PC".
+  // Então ele quer ignorar o "de".
+  // Vamos fazer uma lógica básica de ignorar palavras pequenas (<= 2 chars) ou especificamente "de", "do", etc.
+
+  const ignore = ["de", "da", "do", "das", "dos", "e"];
+  const parts = clean.split(" ").filter(p => !ignore.includes(p.toLowerCase()) && p.length > 0);
+
+  if (parts.length === 0) return clean.substring(0, 2).toUpperCase();
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+
+  // Pega a primeira letra de cada palavra restante
+  // Limit to 2 or 3 chars? "Painel Cliente" -> "PC"
+  return parts.map(p => p[0]).join("").toUpperCase().substring(0, 3);
 }
