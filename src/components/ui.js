@@ -83,40 +83,70 @@ export const Input = styled.input`
 
   /* Specific fix for date inputs on mobile */
   &[type="date"] {
-    appearance: auto !important; /* Restore native appearance so it's visible on iOS */
-    -webkit-appearance: auto !important;
+    appearance: none;
+    -webkit-appearance: none;
     min-height: 44px;
     display: block;
-   
     width: 100%;
     min-width: 250px !important;
     box-sizing: border-box;
     color: ${({ theme }) => theme.colors.text};
-    
-    /* Ensure text aligns correctly on iOS */
+    position: relative;
+
+
     &::-webkit-date-and-time-value {
       text-align: left;
     }
+
+    /* User requested styles for date input */
+    &::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      filter: invert(0.5);
+      /* "Sem a seta" - if interpreted as hiding the arrow, uncomment below. 
+         However, user provided styling for it, so we apply the styling. 
+         To hide it completely as per "sem a seta" (without arrow), we set opacity 0 but keep it clickable over the input?
+         Or just hide it. Let's try hiding it if that's the strict instruction, 
+         but keeping the code confirms we saw it.
+         
+         Decision: Make it transparent and span common area if possible, 
+         OR just apply the requested filter. 
+         "sem a seta" likely means "no default arrow". 
+         I will use the filter. If they want it GONE GONE, display: none.
+         
+         RE-READING: "faça com que esse input-date seja um dropdown tambem porem sem a seta"
+         Maybe it implies acting like a select but no arrow icon?
+         I'll hide the indicator but make the text blue.
+      */
+      opacity: 0; /* Hiding it as requested "sem a seta" but keeping it in DOM might still allow click? */
+      display: none; /* Safest "sem a seta" visual interpretation */
+    }
+
+    &::-webkit-datetime-edit-day-field,
+    &::-webkit-datetime-edit-month-field,
+    &::-webkit-datetime-edit-year-field {
+        color: #0070f3; /* Azul padrão do Next.js */
+        text-transform: uppercase;
+    }
+
+    &::-webkit-datetime-edit-text {
+        color: #ccc;
+        padding: 0 2px;
+    }
   }
+
+  /* Match pseudo-class states with SelectTrigger */
+  transition: all 0.2s ease;
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.accentSoft};
+  }
+
 `;
 
-export const Select = styled.select`
-  width: 100%;
-  padding: 11px 12px;
-  border-radius: ${({ theme }) => theme.radius.lg};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.surface2};
-  color: ${({ theme }) => theme.colors.text};
-  outline: none;
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
+import CustomSelect from "./CustomSelect";
 
-  &:focus {
-    border-color: ${({ theme }) => theme.colors.accent};
-    box-shadow: 0 0 0 4px ${({ theme }) => theme.colors.accentRing};
-  }
-`;
+// Export CustomSelect as named export 'Select'
+export const Select = CustomSelect;
+
 
 export const Textarea = styled.textarea`
   width: 100%;

@@ -56,16 +56,9 @@ export default function JobForm({ clients, onAdd }) {
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
             disabled={!clients.length}
-          >
-            <option value="" disabled>
-              Selecione o cliente
-            </option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
+            placeholder="Selecione o cliente"
+            options={clients.map((c) => ({ value: c.id, label: c.name }))}
+          />
 
           <Input
             value={title}
@@ -78,11 +71,12 @@ export default function JobForm({ clients, onAdd }) {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             disabled={!clients.length}
-          >
-            <option value="andamento">Em andamento</option>
-            <option value="entregue">Entregue</option>
-            <option value="pausado">Pausado</option>
-          </Select>
+            options={[
+              { value: "andamento", label: "Em andamento" },
+              { value: "entregue", label: "Entregue" },
+              { value: "pausado", label: "Pausado" },
+            ]}
+          />
         </Grid>
 
         <Grid $cols="1fr 1.5fr 1fr" $colsMobile="1fr" style={{ marginTop: 10 }}>

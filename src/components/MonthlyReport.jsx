@@ -208,14 +208,9 @@ export default function MonthlyReport({ jobs, clients }) {
           <Select
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            style={{ width: isMobile ? "100%" : 220 }}
-          >
-            {options.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </Select>
+            options={options}
+            placeholder="Selecione o mês"
+          />
 
           <div style={{
             display: isMobile ? "grid" : "flex",
