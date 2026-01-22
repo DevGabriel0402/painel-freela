@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { defaultSettings, mergeSettings, clampHex } from "../app/defaultSettings";
 import { uploadImageToCloudinary } from "../app/cloudinaryUpload";
+import toast from "react-hot-toast";
 
 export default function Settings({ settings, onSave, mode, onToggleMode }) {
   // Trabalha com um rascunho local e só salva quando clicar em "Salvar"
@@ -80,6 +81,7 @@ export default function Settings({ settings, onSave, mode, onToggleMode }) {
 
   function save() {
     onSave(mergeSettings({ ...draft, accent: clampHex(draft.accent) }));
+    toast.success("Configurações salvas!");
   }
 
   const currencyLabel =

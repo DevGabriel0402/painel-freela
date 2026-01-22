@@ -10,8 +10,7 @@ import Admin from "./pages/Admin";
 import Locked from "./pages/Locked"; // Import Locked Page
 
 import { Analytics } from "@vercel/analytics/react";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import toast, { Toaster } from "react-hot-toast";
 
 import Jobs from "./pages/Jobs";
 import Settings from "./pages/Settings";
@@ -87,7 +86,7 @@ export default function App() {
     createUserProfile(user.uid, {
       email: user.email || "",
       displayName: user.displayName || "",
-    }).catch(() => {});
+    }).catch(() => { });
   }, [user]);
 
   // Sync em tempo real com Firestore
@@ -110,7 +109,7 @@ export default function App() {
       } catch {
         // ignore
       }
-      logout().catch(() => {});
+      logout().catch(() => { });
     }
   }, [user, data?.profile?.disabled]);
 
@@ -210,18 +209,49 @@ export default function App() {
   const clients = effectiveData.clients || [];
   const jobs = effectiveData.jobs || [];
 
-  const addClient = (p) => user && addClientFS(user.uid, p);
-  const removeClient = (id) => user && removeClientFS(user.uid, id);
-  const updateClient = (id, patch) => user && updateClientFS(user.uid, id, patch);
-  const addJob = (p) => user && addJobFS(user.uid, p);
-  const removeJob = (id) => user && removeJobFS(user.uid, id);
-  const updateJob = (id, patch) => user && updateJobFS(user.uid, id, patch);
-  const updateStatus = (id, status) => user && updateJobFS(user.uid, id, { status });
+  const addClient = async (p) => {
+    if (!user) return;
+    await addClientFS(user.uid, p);
+    toast.success("Cliente adicionado!");
+  };
+  const removeClient = async (id) => {
+    if (!user) return;
+    await removeClientFS(user.uid, id);
+    toast.success("Cliente removido!");
+  };
+  const updateClient = async (id, patch) => {
+    if (!user) return;
+    await updateClientFS(user.uid, id, patch);
+    toast.success("Cliente atualizado!");
+  };
+  const addJob = async (p) => {
+    if (!user) return;
+    await addJobFS(user.uid, p);
+    toast.success("Job adicionado!");
+  };
+  const removeJob = async (id) => {
+    if (!user) return;
+    await removeJobFS(user.uid, id);
+    toast.success("Job removido!");
+  };
+  const updateJob = async (id, patch) => {
+    if (!user) return;
+    await updateJobFS(user.uid, id, patch);
+    toast.success("Job atualizado!");
+  };
+  const updateStatus = async (id, status) => {
+    if (!user) return;
+    await updateJobFS(user.uid, id, { status });
+    toast.success("Status atualizado!");
+  };
 
-  function togglePaid(jobId) {
+  async function togglePaid(jobId) {
     if (!user) return;
     const job = jobs.find((j) => j.id === jobId);
-    if (job) updateJobFS(user.uid, jobId, { paid: !job.paid });
+    if (job) {
+      await updateJobFS(user.uid, jobId, { paid: !job.paid });
+      toast.success(job.paid ? "Marcado como pendente!" : "Marcado como pago!");
+    }
   }
 
   if (loading) {
@@ -353,7 +383,32 @@ export default function App() {
         </Routes>
       </PrivacyContext.Provider>
       <Analytics />
-      <ToastContainer position="top-right" theme={mode} />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: theme.colors.panel,
+            color: theme.colors.text,
+            border: `1px solid ${theme.colors.border}`,
+            borderRadius: theme.radius.lg,
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+          success: {
+            iconTheme: {
+              primary: theme.colors.accent,
+              secondary: theme.colors.accentText,
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: theme.colors.danger,
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </ThemeProvider>
   );
 }

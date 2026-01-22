@@ -6,6 +6,7 @@ import styled, { useTheme } from "styled-components";
 
 import { downloadCSV } from "../app/exportCsv";
 import { printReportAsPDF } from "../app/exportPdf";
+import toast from "react-hot-toast";
 
 // ... (functions monthOptions, getMonthRange, inMonth remain the same) 
 // BUT we need to make sure we don't delete them if we are replacing a chunk.
@@ -119,6 +120,7 @@ export default function MonthlyReport({ jobs, clients, settings }) {
         },
       ],
     });
+    toast.success("PDF gerado com sucesso!");
   }
 
   const clientById = useMemo(() => {
@@ -202,6 +204,7 @@ export default function MonthlyReport({ jobs, clients, settings }) {
     ];
 
     downloadCSV(filename, rows);
+    toast.success("CSV exportado com sucesso!");
   }
 
 
