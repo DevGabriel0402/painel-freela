@@ -60,18 +60,26 @@ export default function JobList({
           />
         </SearchWrap>
 
-        <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="todos">Status: todos</option>
-          <option value="andamento">Em andamento</option>
-          <option value="entregue">Entregue</option>
-          <option value="pausado">Pausado</option>
-        </Select>
+        <Select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          options={[
+            { value: "todos", label: "Status: todos" },
+            { value: "andamento", label: "Em andamento" },
+            { value: "entregue", label: "Entregue" },
+            { value: "pausado", label: "Pausado" }
+          ]}
+        />
 
-        <Select value={paid} onChange={(e) => setPaid(e.target.value)}>
-          <option value="todos">Pagamento: todos</option>
-          <option value="pendente">Pendente</option>
-          <option value="pago">Pago</option>
-        </Select>
+        <Select
+          value={paid}
+          onChange={(e) => setPaid(e.target.value)}
+          options={[
+            { value: "todos", label: "Pagamento: todos" },
+            { value: "pendente", label: "Pendente" },
+            { value: "pago", label: "Pago" }
+          ]}
+        />
       </Grid>
 
       {filtered.length === 0 ? (
@@ -105,11 +113,12 @@ export default function JobList({
                   <StatusSelect
                     value={j.status}
                     onChange={(e) => onUpdateStatus(j.id, e.target.value)}
-                  >
-                    <option value="andamento">andamento</option>
-                    <option value="entregue">entregue</option>
-                    <option value="pausado">pausado</option>
-                  </StatusSelect>
+                    options={[
+                      { value: "andamento", label: "andamento" },
+                      { value: "entregue", label: "entregue" },
+                      { value: "pausado", label: "pausado" }
+                    ]}
+                  />
 
                   <Button
                     type="button"
@@ -179,16 +188,12 @@ function EditJobForm({ job, clients, onCancel, onSave }) {
   return (
     <Card as="form" onSubmit={submit}>
       <Grid $cols="1fr 1.2fr 0.8fr" $colsMobile="1fr">
-        <Select value={clientId} onChange={(e) => setClientId(e.target.value)}>
-          <option value="" disabled>
-            Selecione o cliente
-          </option>
-          {clients.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </Select>
+        <Select
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+          placeholder="Selecione o cliente"
+          options={clients.map((c) => ({ value: c.id, label: c.name }))}
+        />
 
         <Input
           value={title}
@@ -196,11 +201,15 @@ function EditJobForm({ job, clients, onCancel, onSave }) {
           placeholder="Título do job"
         />
 
-        <Select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="andamento">Em andamento</option>
-          <option value="entregue">Entregue</option>
-          <option value="pausado">Pausado</option>
-        </Select>
+        <Select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          options={[
+            { value: "andamento", label: "Em andamento" },
+            { value: "entregue", label: "Entregue" },
+            { value: "pausado", label: "Pausado" }
+          ]}
+        />
       </Grid>
 
       <Grid $cols="1fr 1fr 1fr" $colsMobile="1fr" style={{ marginTop: 10 }}>
@@ -214,10 +223,11 @@ function EditJobForm({ job, clients, onCancel, onSave }) {
         <Select
           value={paid ? "pago" : "pendente"}
           onChange={(e) => setPaid(e.target.value === "pago")}
-        >
-          <option value="pendente">Pendente</option>
-          <option value="pago">Pago</option>
-        </Select>
+          options={[
+            { value: "pendente", label: "Pendente" },
+            { value: "pago", label: "Pago" }
+          ]}
+        />
       </Grid>
 
       <Row $between style={{ marginTop: 12 }}>

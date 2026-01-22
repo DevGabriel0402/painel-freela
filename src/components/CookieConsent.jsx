@@ -4,51 +4,51 @@ import { Cookie } from "lucide-react";
 import { useLocalStorage } from "../app/useLocalStorage";
 
 export default function CookieConsent() {
-    const [seen, setSeen] = useLocalStorage("cookie_consent_v1", false);
-    const [visible, setVisible] = useState(false);
+  const [seen, setSeen] = useLocalStorage("cookie_consent_v1", false);
+  const [visible, setVisible] = useState(false);
 
-    useEffect(() => {
-        // Delay show slightly to not jar user
-        if (!seen) {
-            const t = setTimeout(() => setVisible(true), 1000);
-            return () => clearTimeout(t);
-        }
-    }, [seen]);
-
-    if (seen || !visible) return null;
-
-    function handleAccept() {
-        setSeen(true);
-        setVisible(false);
+  useEffect(() => {
+    // Delay show slightly to not jar user
+    if (!seen) {
+      const t = setTimeout(() => setVisible(true), 1000);
+      return () => clearTimeout(t);
     }
+  }, [seen]);
 
-    function handleDecline() {
-        // Optionally store "declined" if needed, for MVP we just hide it
-        // But setting 'seen' to true prevents it from showing again.
-        setSeen(true);
-        setVisible(false);
-    }
+  if (seen || !visible) return null;
 
-    return (
-        <Container role="alert">
-            <Content>
-                <IconWrap>
-                    <Cookie size={24} />
-                </IconWrap>
-                <div>
-                    <Title>Este site utiliza cookies</Title>
-                    <Text>
-                        Usamos cookies para melhorar sua experiência e analisar o tráfego. Ao
-                        continuar, você concorda com nossa política de privacidade.
-                    </Text>
-                </div>
-            </Content>
-            <Actions>
-                <DeclineBtn onClick={handleDecline}>Recusar</DeclineBtn>
-                <AcceptBtn onClick={handleAccept}>Aceitar</AcceptBtn>
-            </Actions>
-        </Container>
-    );
+  function handleAccept() {
+    setSeen(true);
+    setVisible(false);
+  }
+
+  function handleDecline() {
+    // Optionally store "declined" if needed, for MVP we just hide it
+    // But setting 'seen' to true prevents it from showing again.
+    setSeen(true);
+    setVisible(false);
+  }
+
+  return (
+    <Container role="alert">
+      <Content>
+        <IconWrap>
+          <Cookie size={24} />
+        </IconWrap>
+        <div>
+          <Title>Este site utiliza cookies</Title>
+          <Text>
+            Usamos cookies para melhorar sua experiência e analisar o tráfego. Ao
+            continuar, você concorda com nossa política de privacidade.
+          </Text>
+        </div>
+      </Content>
+      <Actions>
+        <DeclineBtn onClick={handleDecline}>Recusar</DeclineBtn>
+        <AcceptBtn onClick={handleAccept}>Aceitar</AcceptBtn>
+      </Actions>
+    </Container>
+  );
 }
 
 const Container = styled.div`
@@ -86,7 +86,7 @@ const Content = styled.div`
 `;
 
 const IconWrap = styled.div`
-  color: ${({ theme }) => theme.colors.accent};
+  color: ${({ theme }) => theme.mode === 'dark' ? theme.colors.text : theme.colors.accent};
   display: flex;
   align-items: flex-start;
   padding-top: 2px;

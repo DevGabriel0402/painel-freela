@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Grid, Input, Select, Button, Row } from "./ui";
+import { Card, Grid, Input, Select, DatePicker, Button, Row } from "./ui";
 import { PlusCircle } from "lucide-react";
 import Modal from "./Modal";
 
@@ -87,10 +87,10 @@ export default function JobForm({ clients, onAdd }) {
             inputMode="numeric"
             disabled={!clients.length}
           />
-          <Input
+          <DatePicker
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            type="date"
+            placeholder="Vencimento"
             disabled={!clients.length}
           />
           <Row $between>

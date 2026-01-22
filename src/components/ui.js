@@ -143,9 +143,13 @@ export const Input = styled.input`
 `;
 
 import CustomSelect from "./CustomSelect";
+import CustomDatePicker from "./CustomDatePicker";
 
 // Export CustomSelect as named export 'Select'
 export const Select = CustomSelect;
+export const DatePicker = CustomDatePicker;
+
+
 
 
 export const Textarea = styled.textarea`
