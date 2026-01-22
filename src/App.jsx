@@ -142,12 +142,8 @@ export default function App() {
     admin: Boolean(user && isAdminUser(user)),
   };
 
-  // Sync mode (Firestore > LocalStorage)
-  useEffect(() => {
-    if (settings?.mode) {
-      setMode(settings.mode);
-    }
-  }, [settings?.mode, setMode]);
+  // Tema visual: localStorage é a fonte de verdade (instantâneo, sem flash)
+  // O Firestore NÃO sobrescreve mais o modo visual para evitar flash
 
   const theme = useMemo(() => {
     return makeTheme({ mode, accent: clampHex(settings.accent) });
