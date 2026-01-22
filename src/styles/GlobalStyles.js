@@ -20,6 +20,21 @@ export const GlobalStyle = createGlobalStyle`
   a { color: inherit; text-decoration: none; }
   button, input, select, textarea { font: inherit; }
 
+  /* Fix native date input text color (browser default is blue) */
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="time"] {
+    color: inherit;
+    color-scheme: ${({ theme }) => theme.mode === "dark" ? "dark" : "light"};
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: ${({ theme }) => theme.mode === "dark" ? "invert(1)" : "none"};
+    cursor: pointer;
+  }
+
   @media(max-width: 600px) {
     .mobile-hide { display: none; }
   }

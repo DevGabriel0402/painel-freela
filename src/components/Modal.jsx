@@ -45,7 +45,7 @@ const Dialog = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.panel};
   box-shadow: ${({ theme }) => theme.shadow.soft};
-  overflow: hidden;
+  overflow: visible; /* Allow dropdown to overflow */
 `;
 
 const Header = styled.div`

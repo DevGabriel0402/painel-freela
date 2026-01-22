@@ -13,7 +13,6 @@ export default function LoadingScreen() {
     <Container>
       <IconWrapper $halo={haloColor}>
         <SiFluxus size={80} color={baseColor} />
-        <SiFluxus size={80} color={accentColor} />
       </IconWrapper>
     </Container>
   );

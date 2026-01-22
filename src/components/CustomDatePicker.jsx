@@ -45,7 +45,7 @@ const Dropdown = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
   box-shadow: ${({ theme }) => theme.shadow.soft};
-  z-index: 50;
+  z-index: 1000; /* Above modal (z-index: 999) */
   padding: 16px;
   width: 100%;
   min-width: 280px; /* Ensure calendar is readable */

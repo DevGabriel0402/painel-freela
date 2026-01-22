@@ -4,6 +4,7 @@ import { Card, Input, Select, Row, Stack, Button, Pill, Grid } from "./ui";
 import { Search, Trash2, CheckCircle2, Circle, Briefcase, Pencil } from "lucide-react";
 import styled from "styled-components";
 import Modal from "./Modal";
+import CustomDatePicker from "./CustomDatePicker";
 
 export default function JobList({
   jobs,
@@ -219,7 +220,7 @@ function EditJobForm({ job, clients, onCancel, onSave }) {
           placeholder="Valor (ex: 500)"
           inputMode="numeric"
         />
-        <Input value={dueDate} onChange={(e) => setDueDate(e.target.value)} type="date" />
+        <CustomDatePicker value={dueDate} onChange={(e) => setDueDate(e.target.value)} placeholder="Vencimento" />
         <Select
           value={paid ? "pago" : "pendente"}
           onChange={(e) => setPaid(e.target.value === "pago")}
