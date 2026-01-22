@@ -64,8 +64,8 @@ export default function JobList({
           value={status}
           onChange={(e) => setStatus(e.target.value)}
           options={[
-            { value: "todos", label: "Status: todos" },
-            { value: "andamento", label: "Em andamento" },
+            { value: "todos", label: "Status: Todos" },
+            { value: "andamento", label: "Em Andamento" },
             { value: "entregue", label: "Entregue" },
             { value: "pausado", label: "Pausado" }
           ]}
@@ -75,7 +75,7 @@ export default function JobList({
           value={paid}
           onChange={(e) => setPaid(e.target.value)}
           options={[
-            { value: "todos", label: "Pagamento: todos" },
+            { value: "todos", label: "Pagamento: Todos" },
             { value: "pendente", label: "Pendente" },
             { value: "pago", label: "Pago" }
           ]}
@@ -100,7 +100,7 @@ export default function JobList({
                     <Row $gap="8px" style={{ minWidth: 0 }}>
                       <Ellipsis style={{ fontWeight: 900 }}>{j.title}</Ellipsis>
                       <Pill>{j.status}</Pill>
-                      <Pill>{j.paid ? "pago" : "pendente"}</Pill>
+                      <Pill>{j.paid ? "Pago" : "Pendente"}</Pill>
                     </Row>
                     <Meta data-sensitive="true">
                       Cliente: <b>{clientName}</b> • Venc: {formatDateBR(j.dueDate)} •{" "}
@@ -114,9 +114,9 @@ export default function JobList({
                     value={j.status}
                     onChange={(e) => onUpdateStatus(j.id, e.target.value)}
                     options={[
-                      { value: "andamento", label: "andamento" },
-                      { value: "entregue", label: "entregue" },
-                      { value: "pausado", label: "pausado" }
+                      { value: "andamento", label: "Em Andamento" },
+                      { value: "entregue", label: "Entregue" },
+                      { value: "pausado", label: "Pausado" }
                     ]}
                   />
 

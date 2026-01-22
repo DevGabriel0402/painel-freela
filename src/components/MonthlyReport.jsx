@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Card, CardTitle, CardValue, Grid, Row, Stack, Select, Pill, Button } from "./ui";
 import { CalendarDays, TrendingUp, TrendingDown, ListChecks, FileSpreadsheet, FileText } from "lucide-react";
 import { formatBRL, formatDateBR } from "../app/utils";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 
 import { downloadCSV } from "../app/exportCsv";
 import { printReportAsPDF } from "../app/exportPdf";
@@ -53,9 +53,73 @@ function inMonth(dateStr, ym) {
   return d >= start && d < end;
 }
 
-export default function MonthlyReport({ jobs, clients }) {
+export default function MonthlyReport({ jobs, clients, settings }) {
   const options = useMemo(() => monthOptions(), []);
   const [month, setMonth] = useState(options[0]?.value || "");
+  const theme = useTheme();
+
+  // Let's check imports first. 'styled' is default import. 
+  // 'useTheme' is a named export from styled-components.
+  // I will add the import to line 5.
+
+
+
+
+  async function exportPDF() {
+    // Format "2026-01" to "Janeiro de 2026" for the title
+    const [y, m] = month.split("-");
+    const dateObj = new Date(Number(y), Number(m) - 1, 1);
+    const titleFormatted = dateObj.toLocaleString("pt-BR", { month: "long", year: "numeric" });
+    const titleFinal = titleFormatted.charAt(0).toUpperCase() + titleFormatted.slice(1);
+
+    const subtitle = `${new Date().toLocaleString("pt-BR")}`;
+
+    function formatCount(val) {
+      return Number(val) === 0 ? "Nenhum" : String(val);
+    }
+
+    await printReportAsPDF({
+      appName: settings?.appName,
+      logoUrl: settings?.logoUrl,
+      themeColor: theme?.colors?.accent,
+      title: titleFinal,
+      subtitle: subtitle,
+      summaryRows: [
+        ["Recebido", money(recebido)],
+        ["A Receber", money(aReceber)],
+        ["Jobs pagos", formatCount(countPago)],
+        ["Jobs pendentes", formatCount(countPendente)],
+      ],
+      sections: [
+        {
+          title: "Totais por Status (do Mês)",
+          headers: ["Status", "Total"],
+          rows: [
+            ["Em Andamento", money(statusTotals.andamento || 0)],
+            ["Entregue", money(statusTotals.entregue || 0)],
+            ["Pausado", money(statusTotals.pausado || 0)],
+          ],
+        },
+        {
+          title: "Ranking por cliente (do Mês)",
+          headers: ["Cliente", "Jobs", "Total"],
+          rows: rankingClientes.map((c) => [c.name, String(c.jobs), money(c.total)]),
+        },
+        {
+          title: "Jobs do Mês (detalhado)",
+          headers: ["Cliente", "Título", "Status", "Valor", "Vencimento", "Pago"],
+          rows: jobsDoMes.map((j) => [
+            clientById.get(j.clientId)?.name || "—",
+            j.title || "",
+            j.status || "",
+            money(j.value),
+            j.dueDate ? formatDateBR(j.dueDate) : "",
+            j.paid ? "Sim" : "Não",
+          ]),
+        },
+      ],
+    });
+  }
 
   const clientById = useMemo(() => {
     const map = new Map();
@@ -122,67 +186,25 @@ export default function MonthlyReport({ jobs, clients }) {
     const filename = `relatorio-${month}.csv`;
 
     const rows = [
-      ["Mes", month],
+      ["Mês", month],
       ["Recebido", money(recebido)],
       ["A Receber", money(aReceber)],
       [],
-      ["Cliente", "Titulo", "Status", "Valor", "Vencimento", "Pago"],
+      ["Cliente", "Título", "Status", "Valor", "Vencimento", "Pago"],
       ...jobsDoMes.map((j) => [
         clientById.get(j.clientId)?.name || "—",
         j.title || "",
         j.status || "",
         money(j.value),
         j.dueDate ? formatDateBR(j.dueDate) : "",
-        j.paid ? "Sim" : "Nao",
+        j.paid ? "Sim" : "Não",
       ]),
     ];
 
     downloadCSV(filename, rows);
   }
 
-  function exportPDF() {
-    const title = `Relatorio - ${month}`;
-    const subtitle = `Gerado em ${new Date().toLocaleString("pt-BR")}`;
 
-    printReportAsPDF({
-      title,
-      subtitle,
-      summaryRows: [
-        ["Recebido", money(recebido)],
-        ["A receber", money(aReceber)],
-        ["Jobs pagos", String(countPago)],
-        ["Jobs pendentes", String(countPendente)],
-      ],
-      sections: [
-        {
-          title: "Totais por status (do mes)",
-          headers: ["Status", "Total"],
-          rows: [
-            ["andamento", money(statusTotals.andamento || 0)],
-            ["entregue", money(statusTotals.entregue || 0)],
-            ["pausado", money(statusTotals.pausado || 0)],
-          ],
-        },
-        {
-          title: "Ranking por cliente (do mes)",
-          headers: ["Cliente", "Jobs", "Total"],
-          rows: rankingClientes.map((c) => [c.name, String(c.jobs), money(c.total)]),
-        },
-        {
-          title: "Jobs do mes (detalhado)",
-          headers: ["Cliente", "Titulo", "Status", "Valor", "Vencimento", "Pago"],
-          rows: jobsDoMes.map((j) => [
-            clientById.get(j.clientId)?.name || "—",
-            j.title || "",
-            j.status || "",
-            money(j.value),
-            j.dueDate ? formatDateBR(j.dueDate) : "",
-            j.paid ? "Sim" : "Nao",
-          ]),
-        },
-      ],
-    });
-  }
 
   return (
     <Card>
@@ -192,8 +214,8 @@ export default function MonthlyReport({ jobs, clients }) {
             <CalendarDays size={18} />
           </Icon>
           <div>
-            <div style={{ fontWeight: 900 }}>Relatório do mês</div>
-            <CardTitle>Somatório por vencimento</CardTitle>
+            <div style={{ fontWeight: 900 }}>Relatório do Mês</div>
+            <CardTitle>Somatório por Vencimento</CardTitle>
           </div>
         </Row>
 
@@ -232,13 +254,13 @@ export default function MonthlyReport({ jobs, clients }) {
       <Grid $cols="1fr 1fr 1.2fr" $colsMobile="1fr" style={{ marginTop: 12 }}>
         <Kpi
           icon={<TrendingUp size={18} />}
-          title="Recebido no mês"
+          title="Recebido no Mês"
           value={formatBRL(recebido)}
           pill={`${countPago} pago(s)`}
         />
         <Kpi
           icon={<TrendingDown size={18} />}
-          title="A receber no mês"
+          title="A Receber no Mês"
           value={formatBRL(aReceber)}
           pill={`${countPendente} pendente(s)`}
         />
@@ -248,7 +270,7 @@ export default function MonthlyReport({ jobs, clients }) {
               <Icon>
                 <ListChecks size={18} />
               </Icon>
-              <CardTitle>Jobs do mês</CardTitle>
+              <CardTitle>Jobs do Mês</CardTitle>
             </Row>
             <Pill>{jobsDoMes.length} total</Pill>
           </Row>
@@ -268,13 +290,13 @@ export default function MonthlyReport({ jobs, clients }) {
                       {formatDateBR(j.dueDate)} • {formatBRL(j.value)}
                     </Small>
                   </JobInfo>
-                  <Pill>{j.paid ? "pago" : "pendente"}</Pill>
+                  <Pill>{j.paid ? "Pago" : "Pendente"}</Pill>
                 </JobRow>
               ))}
 
               {jobsDoMes.length > 8 ? (
                 <Muted>
-                  + {jobsDoMes.length - 8} job(s) (use a lista abaixo pra ver todos)
+                  + {jobsDoMes.length - 8} job(s) (use a lista abaixo para ver todos)
                 </Muted>
               ) : null}
             </Stack>

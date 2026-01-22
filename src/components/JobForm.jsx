@@ -72,7 +72,7 @@ export default function JobForm({ clients, onAdd }) {
             onChange={(e) => setStatus(e.target.value)}
             disabled={!clients.length}
             options={[
-              { value: "andamento", label: "Em andamento" },
+              { value: "andamento", label: "Em Andamento" },
               { value: "entregue", label: "Entregue" },
               { value: "pausado", label: "Pausado" },
             ]}

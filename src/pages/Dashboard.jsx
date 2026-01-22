@@ -13,7 +13,7 @@ export default function Dashboard({ jobs, clients, settings }) {
       <MonthlyGoal jobs={jobs} settings={settings} />
 
       {/* Relatório do mês (com export) */}
-      <MonthlyReport jobs={jobs} clients={clients} />
+      <MonthlyReport jobs={jobs} clients={clients} settings={settings} />
 
       <RevenueLineChart jobs={jobs} defaultMode={settings?.revenueChartMode} />
 
